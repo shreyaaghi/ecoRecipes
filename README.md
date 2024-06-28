@@ -19,10 +19,13 @@ Eco-Recipes is a mobile app designed to promote sustainable eating by offering r
 - **Supabase**: Used for managing the database, including tables for Recipes, Ingredients, Users, Meal Plans, and Tips
 - **Filtering**: Implement filtering capabilities based on attributes such as dessert, savory, and sweet
 
-#### Sourcing Tips
+#### General
 - **Local and Seasonal Ingredients**: Create a section for tips on sourcing local and seasonal ingredients
-- **Content Mix**: Combination of your content and user-generated tips
+- **Suggested Recipes**: Suggested feed based on recipes in meal plan or previously tried ones (alternatively could be random ones to try something new)
 - **Resources**: Include links to articles, videos, and guides for growing your own ingredients
+
+#### Authentication
+- **Supabase Auth**: Create a section for tips on sourcing local and seasonal ingredients
 
 #### Meal Planning and Shopping List
 - **Meal Planning**: Implement a feature for users to plan their meals for the week
