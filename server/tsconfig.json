@@ -6,12 +6,21 @@
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "outDir": "dist",
-    "baseUrl": ".",
+    "baseUrl": "src/",
+    // "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
+      // "*": ["node_modules/*"],
+      // "@/*": ["*"],
+      // "@routes/*": ["routes/*"],
+      "@controllers/*": ["src/controllers/*"]
     },
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules/"]
