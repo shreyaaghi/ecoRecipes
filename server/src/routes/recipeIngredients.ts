@@ -6,9 +6,9 @@ const recipeIngredientsRouter = () => {
     router.get("/", (req: Request, res: Response) => res.send("recipes"));
 
     router.post("/", async (req: Request, res: Response) => {
-        const { recipeId, ingredientId, amount }: {recipeId: number, ingredientId: number, amount: string} = req.body;
+        const { recipeId, ingredientId, amount, comments }: {recipeId: number, ingredientId: number, amount: string, comments: string} = req.body;
 
-        res.send(await createPair(recipeId, ingredientId, amount));
+        res.send(await createPair(recipeId, ingredientId, amount, comments));
 
     });
 

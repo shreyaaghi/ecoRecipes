@@ -1,12 +1,13 @@
 import { supabase } from "../util/supabase";
 
-const createPair = async (recipeId: number, ingredientId: number, amount: string) => {
+const createPair = async (recipeId: number, ingredientId: number, amount: string, comments:string) => {
     const { data, error } = await supabase
       .from('recipe_ingredients')
       .insert([{ 
         recipe_id: recipeId,
         ingredient_id: ingredientId,
-        amount: amount
+        amount: amount,
+        comments: comments
      }]).select();
   
     if (error) {

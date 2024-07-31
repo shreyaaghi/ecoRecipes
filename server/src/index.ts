@@ -6,6 +6,10 @@ import authRouter from "./routes/auth"
 import recipesRouter from "./routes/recipes"
 import ingredientsRouter from "./routes/ingredients"
 import recipeIngredientsRouter from "./routes/recipeIngredients"
+import plansRouter from "./routes/plans"
+import mealPlansRouter from "./routes/mealPlans"
+import recipePlansRouter from "./routes/recipePlans"
+
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
 app.use(express.json());
@@ -14,6 +18,9 @@ app.use("/auth", authRouter());
 app.use("/recipes", recipesRouter());
 app.use("/ingredients", ingredientsRouter());
 app.use("/recipe-ingredients", recipeIngredientsRouter());
+app.use("/plans", plansRouter());
+app.use("/meal-plans", mealPlansRouter());
+app.use("/recipe-plans", recipePlansRouter());
 
 app.get("/", (req:Request, res:Response) => res.send("hello"));
 
