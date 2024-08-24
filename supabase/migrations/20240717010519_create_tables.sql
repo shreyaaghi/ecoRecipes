@@ -21,8 +21,10 @@ create table
     created_at timestamp with time zone not null default now(),
     sustainability_info text not null default ''::text,
     user_generated boolean null,
+    author uuid not null,
+    recipe_photo text null,
     constraint recipes_pkey primary key (id),
-    constraint recipes_id_key unique (id)
+    constraint recipes_author_fkey foreign key (author) references users (id) on update cascade on delete cascade
   ) tablespace pg_default;
 
 create table

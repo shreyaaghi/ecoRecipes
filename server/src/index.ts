@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
+import formidable from 'express-formidable';
 
 import express, { Express, Request, Response } from "express";
 import authRouter from "./routes/auth"
@@ -12,6 +13,7 @@ import recipePlansRouter from "./routes/recipePlans"
 
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
+app.use(formidable());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRouter());

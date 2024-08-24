@@ -1,6 +1,6 @@
 import  { supabase } from "../util/supabase";
 
-const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, user_generated?:boolean) => {
+const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, user_generated?:boolean) => {
     const {data, error} = await supabase.from("recipes").insert([{
         title: title,
         author: author,
@@ -8,6 +8,7 @@ const createRecipe = async (title:string, author:string, description:string, ste
         steps: steps,
         category: category,
         sustainability_info: sustainability_info,
+        // recipe_photo: ,
         user_generated: user_generated??true
     }]).select();
     if (error) {
@@ -16,9 +17,20 @@ const createRecipe = async (title:string, author:string, description:string, ste
             error:error.message
         }
     }
+    const recipeId:number = data[0].id;
+
+    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.png`, recipe_photo );
+    if (upload_error) {
+        return {
+            status: 500,
+            error: upload_error.message
+        }
+    }
+    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.png`);
+    const {data:updated_data} = await supabase.from("recipes").update({"recipe_photo": photo_data.publicUrl}).eq("id", recipeId).select();
     return {
         status:200,
-        data:data
+        data:updated_data
     }
 };
 
@@ -46,7 +58,7 @@ const getRecipe = async (id:number) => {
     };
 };
 
-const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, user_generated?:boolean) => {
+const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, user_generated?:boolean) => {
     const {data, error} = await supabase.from("recipes").update([{
         title: title,
         author: author,
@@ -54,6 +66,7 @@ const updateRecipe = async (id:number, title:string, author:string, description:
         steps: steps,
         category: category,
         sustainability_info: sustainability_info,
+        recipe_photo,
         user_generated: user_generated??true
     }]).eq('id', id)
     .select();

@@ -1,0 +1,1 @@
+INSERT INTO storage.buckets (id, name, public) VALUES ("recipe-images", "recipe-images", true);
