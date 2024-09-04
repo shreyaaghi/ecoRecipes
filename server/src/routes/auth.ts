@@ -12,6 +12,7 @@ const authRouter = () => {
 
     router.post("/login", async (req: Request, res: Response) => {
         const { email, password }: {email: string, password: string} = req.body;
+        console.info("Login hit");
         res.send(await login(email, password));
     })
 

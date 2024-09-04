@@ -1,6 +1,7 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-import formidable from 'express-formidable';
+// import formidable from 'express-formidable';
 
 import express, { Express, Request, Response } from "express";
 import authRouter from "./routes/auth"
@@ -13,9 +14,13 @@ import recipePlansRouter from "./routes/recipePlans"
 
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
-app.use(formidable());
+// app.use(formidable());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
+}));
 app.use("/auth", authRouter());
 app.use("/recipes", recipesRouter());
 app.use("/ingredients", ingredientsRouter());

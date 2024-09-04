@@ -5,7 +5,7 @@ export default function Layout() {
     return (
         <Stack>
             <Stack.Screen name="login"></Stack.Screen>
+            <Stack.Screen name="signup"></Stack.Screen>
         </Stack>
-
     )
 }

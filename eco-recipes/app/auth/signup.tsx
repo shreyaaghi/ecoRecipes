@@ -4,31 +4,32 @@ import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { View } from "@/components/Themed";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import axios from 'axios';
+import axios from "axios";
 
-export default function Login() {
+export default function SignUp() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
 
-    const handleLogin = async () => {
-        const {data: loginData} = await axios.post(`${api_url}/auth/login`, {email, password});
-        if (loginData?.error) {
-            setError(loginData.error);
+    const handleSignup = async () => {
+        const {data: signupData} = await axios.post(`${api_url}/auth/signup`, {email, password, username});
+        if (signupData?.error) {
+            setError(signupData.error);
             return;
         }
         // todo - save token to async storage 
         router.replace('/(tabs)');
       };
-    const goToSignup = () => {
-        router.replace('/auth/signup');
+    const goToLogin = () => {
+        router.replace('/auth/login');
     }
     return (
         <>
             <View style={styles.body}>
-                <Text style={styles.heading}>Login</Text>
+                <Text style={styles.heading}>Sign Up</Text>
                 <Text style={styles.titles}>Email</Text>
                 <TextInput
                     style={styles.input}
@@ -42,12 +43,18 @@ export default function Login() {
                     value={password}
                     secureTextEntry={true}
                 />
-                <TouchableOpacity style={styles.link} onPress={goToSignup}>
-                    <Text style={styles.linkText}>Don't have an account? Sign up here.</Text>
+                <Text style={styles.titles}>Username</Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setUsername}
+                    value={username}
+                />
+                <TouchableOpacity style={styles.link} onPress={goToLogin}>
+                    <Text style={styles.linkText}>Already have an account? Login here.</Text>
                 </TouchableOpacity>
                 <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Login</Text>
+                <TouchableOpacity style={styles.button} onPress={handleSignup}>
+                    <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
             </View>
         </>
@@ -64,10 +71,8 @@ const styles = StyleSheet.create({
     },
     body: {
         backgroundColor: '#4BA9FF',
-        // width: 500,
-        // height: 1000,
-        // flex: "auto",
-        flex: 1
+        width: 500,
+        height: 1000
     },
     input: {
         height: 40,
@@ -92,9 +97,9 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 15,
         width: '25%',
+        marginLeft: 125,
+        marginTop: 25,
         alignItems: 'center',
-        alignSelf: 'center',
-        justifyContent: 'center',
       },
       buttonText: {
         color: 'white',
@@ -102,28 +107,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       link: {
-        // width: '80%',
-        // marginLeft: 65,
-        // marginTop: 5,
-        textAlign: 'center',
+        width: '80%',
+        marginLeft: 65,
+        marginTop: 5,
         alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'center',
       },
       linkText: {
         color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
-        textDecorationLine: 'underline',
-        textAlign: 'center',
+        textDecorationLine: 'underline'
       },
       errorText: {
         color: 'red',
         fontSize: 13,
-        // marginLeft: 140,
-        // marginTop: 20
-        justifyContent: 'center',
-        alignItems: 'center',
-        textAlign: 'center'
+        marginLeft: 140,
+        marginTop: 20
       },
 });  
