@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from "react-native";
 import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
@@ -15,17 +16,33 @@ export default function SignUp() {
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
 
     const handleSignup = async () => {
-        const {data: signupData} = await axios.post(`${api_url}/auth/signup`, {email, password, username});
-        if (signupData?.error) {
-            setError(signupData.error);
+        if (!email || !password || !username) {
+            setError('Please fill in all fields');
             return;
+        };
+        setError("");
+
+        try {
+            const {data: signupData} = await axios.post(`${api_url}/auth/signup`, {email, password, username}, {timeout: 5000});
+            if (signupData?.error) {
+                setError(signupData.error);
+                return;
+            }
+        
+            if (signupData.data) {
+                await AsyncStorage.setItem('userToken', signupData.data);
+                router.replace('/(tabs)');
+            } else {
+                setError('no token');
+            }
+        } catch (error) {
+            setError(`An error occured: ${error}`);
         }
-        // todo - save token to async storage 
-        router.replace('/(tabs)');
-      };
+    };
     const goToLogin = () => {
         router.replace('/auth/login');
-    }
+    };
+
     return (
         <>
             <View style={styles.body}>
@@ -35,6 +52,7 @@ export default function SignUp() {
                     style={styles.input}
                     onChangeText={setEmail}
                     value={email}
+                    autoCapitalize={"none"}
                 />
                 <Text style={styles.titles}>Password</Text>
                 <TextInput
@@ -48,6 +66,7 @@ export default function SignUp() {
                     style={styles.input}
                     onChangeText={setUsername}
                     value={username}
+                    autoCapitalize={"none"}
                 />
                 <TouchableOpacity style={styles.link} onPress={goToLogin}>
                     <Text style={styles.linkText}>Already have an account? Login here.</Text>
@@ -71,8 +90,7 @@ const styles = StyleSheet.create({
     },
     body: {
         backgroundColor: '#4BA9FF',
-        width: 500,
-        height: 1000
+        flex: 1
     },
     input: {
         height: 40,
@@ -95,11 +113,12 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#4CAF50',
         padding: 15,
+        marginTop:10,
         borderRadius: 15,
-        width: '25%',
-        marginLeft: 125,
-        marginTop: 25,
+        width: '30%',
         alignItems: 'center',
+        alignSelf: 'center',
+        justifyContent: 'center'
       },
       buttonText: {
         color: 'white',
@@ -107,22 +126,24 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       link: {
-        width: '80%',
-        marginLeft: 65,
-        marginTop: 5,
+        textAlign: 'center',
         alignItems: 'center',
         flexDirection: 'row',
+        justifyContent: 'center'
       },
       linkText: {
         color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
-        textDecorationLine: 'underline'
+        textDecorationLine: 'underline',
+        textAlign: 'center'
       },
       errorText: {
         color: 'red',
         fontSize: 13,
-        marginLeft: 140,
-        marginTop: 20
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        paddingTop: 10
       },
 });  

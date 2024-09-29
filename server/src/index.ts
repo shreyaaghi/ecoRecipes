@@ -11,6 +11,7 @@ import recipeIngredientsRouter from "./routes/recipeIngredients"
 import plansRouter from "./routes/plans"
 import mealPlansRouter from "./routes/mealPlans"
 import recipePlansRouter from "./routes/recipePlans"
+import usersRouter from "./routes/users"
 
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
@@ -28,6 +29,7 @@ app.use("/recipe-ingredients", recipeIngredientsRouter());
 app.use("/plans", plansRouter());
 app.use("/meal-plans", mealPlansRouter());
 app.use("/recipe-plans", recipePlansRouter());
+app.use("/users", usersRouter());
 
 app.get("/", (req:Request, res:Response) => res.send("hello"));
 

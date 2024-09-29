@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from "react-native";
 import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
@@ -14,17 +15,34 @@ export default function Login() {
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
 
     const handleLogin = async () => {
-        const {data: loginData} = await axios.post(`${api_url}/auth/login`, {email, password});
-        if (loginData?.error) {
-            setError(loginData.error);
+        if (!email || !password) {
+            setError('Please fill in all fields');
             return;
+        };
+
+        try {
+            const {data: loginData} = await axios.post(`${api_url}/auth/login`, {email, password}, {timeout: 5000});
+            if (loginData?.error) {
+                setError(loginData.error);
+                return;
+            }
+        
+            if (loginData.data) {
+                await AsyncStorage.setItem('userToken', loginData.data);
+                // console.info(`Token: ${await AsyncStorage.getItem('userToken')}`);
+                router.replace('/(tabs)');
+            } else {
+                setError('no token');
+            }
+        } catch (error) {
+            setError(`An error occured: ${error}`);
         }
-        // todo - save token to async storage 
-        router.replace('/(tabs)');
       };
     const goToSignup = () => {
         router.replace('/auth/signup');
-    }
+    };
+
+
     return (
         <>
             <View style={styles.body}>
@@ -34,6 +52,7 @@ export default function Login() {
                     style={styles.input}
                     onChangeText={setEmail}
                     value={email}
+                    autoCapitalize={"none"}
                 />
                 <Text style={styles.titles}>Password</Text>
                 <TextInput
@@ -90,6 +109,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#4CAF50',
         padding: 15,
+        marginTop:10,
         borderRadius: 15,
         width: '25%',
         alignItems: 'center',
@@ -102,13 +122,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
       link: {
-        // width: '80%',
-        // marginLeft: 65,
-        // marginTop: 5,
         textAlign: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'center'
       },
       linkText: {
         color: 'white',
@@ -120,10 +137,9 @@ const styles = StyleSheet.create({
       errorText: {
         color: 'red',
         fontSize: 13,
-        // marginLeft: 140,
-        // marginTop: 20
         justifyContent: 'center',
         alignItems: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        paddingTop: 10
       },
 });  

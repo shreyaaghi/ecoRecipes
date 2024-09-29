@@ -28,6 +28,7 @@ const createRecipe = async (title:string, author:string, description:string, ste
     }
     const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.png`);
     const {data:updated_data} = await supabase.from("recipes").update({"recipe_photo": photo_data.publicUrl}).eq("id", recipeId).select();
+    
     return {
         status:200,
         data:updated_data

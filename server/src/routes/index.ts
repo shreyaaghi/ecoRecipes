@@ -5,3 +5,4 @@ export * from "./recipeIngredients";
 export * from "./plans";
 export * from "./mealPlans";
 export * from "./recipePlans";
+export * from "./users";
