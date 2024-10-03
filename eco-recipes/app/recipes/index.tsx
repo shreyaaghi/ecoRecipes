@@ -1,14 +1,26 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
 
 const RecipesScreen: React.FC = () => {
-  const data = [
-    {
-      id: "hello",
-      name: "world"
-    }
-  ]
+  // const data = [
+  //   {
+  //     id: "hello",
+  //     name: "world"
+  //   }
+  // ]
+  const [data, setData] = useState<Record<string, unknown>>();
+  useEffect(()=>{
+    // todo: add path to get ALL recipes 
+    (
+      async () => {
+        try {
+          
+        } catch(err){}
+      }
+    )();
+  }, [data]);
   return (
   
     <View style={styles.container}>

@@ -29,6 +29,13 @@ const recipesRouter = () => {
         return res.send(await getRecipe(id));
     });
 
+    router.get("/recipes/", async (req: Request, res: Response) => {
+      const pageNumber = req.query.pageNumber;
+      const pageSize = req.query.pageSize;
+      // /recipes?pageNumber=1&pageSize=2
+      
+    })
+
     router.put("/:id", async (req: Request, res: Response) => {
         const id: number = parseInt(req.params.id);
 

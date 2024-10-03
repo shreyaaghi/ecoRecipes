@@ -111,4 +111,29 @@ const deleteRecipe = async (id:number) => {
       }
 };
 
-export { createRecipe, getRecipe, updateRecipe, deleteRecipe };
+const getAllRecipes = async (size:number, pageNumber:number) => {
+    // paginating - showing 10 of 50 results, not pulling everything at once
+    const { data, error } = await supabase
+    .from('recipes').select('*').range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
+
+    if (error) {
+        return {
+          status: 500,
+          error: error.message,
+        };
+    }
+      
+    if (!data || data.length == 0) {
+        return {
+          status: 404,
+          error: 'no recipes found',
+        };
+    }
+    
+    return {
+        status: 200,
+        data: data,
+    };
+};
+
+export { createRecipe, getRecipe, getAllRecipes, updateRecipe, deleteRecipe };
