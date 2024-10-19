@@ -22,12 +22,14 @@ const styles = StyleSheet.create({
       paddingTop: 30,
       paddingBottom: 30,
       marginBottom: 40,
-      marginHorizontal: 20,
+      marginHorizontal: 10,
       backgroundColor: "#41BD4B",
       borderRadius: 30,
     },
     buttonText: {
-      fontSize: 25
+      fontSize: 20,
+      color: "white",
+      fontWeight: "bold"
     },
     image: {
         justifyContent: 'center'

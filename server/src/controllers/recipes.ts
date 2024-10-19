@@ -129,10 +129,20 @@ const getAllRecipes = async (size:number, pageNumber:number) => {
           error: 'no recipes found',
         };
     }
+
+    const parsed = [];
+    for (let recipe of data){
+        let pRecipe: Record<string, string> = {};
+        pRecipe.id = recipe.id;
+        pRecipe.title = recipe.title;
+        pRecipe.recipe_photo = recipe.recipe_photo;
+
+        parsed.push(pRecipe);
+    }
     
     return {
         status: 200,
-        data: data,
+        data: parsed,
     };
 };
 

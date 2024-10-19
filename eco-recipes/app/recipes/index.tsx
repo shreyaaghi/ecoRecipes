@@ -2,25 +2,22 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
+import axios from 'axios';
 
 const RecipesScreen: React.FC = () => {
-  // const data = [
-  //   {
-  //     id: "hello",
-  //     name: "world"
-  //   }
-  // ]
-  const [data, setData] = useState<Record<string, unknown>>();
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const api_url = process.env.EXPO_PUBLIC_API_URL||"";
   useEffect(()=>{
-    // todo: add path to get ALL recipes 
     (
       async () => {
         try {
-          
+          let { data } = await axios.get(`${api_url}/recipes/recipes/`);
+          console.info(data.data);
+          setData(data.data);
         } catch(err){}
       }
     )();
-  }, [data]);
+  }, [data?.length > 0]);
   return (
   
     <View style={styles.container}>
@@ -38,7 +35,7 @@ const RecipesScreen: React.FC = () => {
       </View>
       <FlatList
         data={data}
-        renderItem={({item}: any)=><RecipeButton id={item.id} name={item.name}/>}
+        renderItem={({item}: any)=><RecipeButton id={item.id} name={item.title}/>}
         keyExtractor={(plan: any) => plan.id}
         ></FlatList>
         </View>
