@@ -16,10 +16,21 @@ interface Recipe {
     created_at: string;
     user_generated: boolean;
 }
+interface Ingredient {
+  id: number;
+  recipe_id: number;
+  ingredient_id: number;
+  name: string;
+  amount: string;
+  created_at: string;
+  comments: string;
+}
+
 const Recipe = () => {
     const pathname = usePathname();
     let id = pathname.substring(pathname.lastIndexOf("/") + 1);
     const [recipe, setRecipe] = useState<Recipe | null>(null);
+    const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
 
     useEffect(()=>{
@@ -27,6 +38,8 @@ const Recipe = () => {
             try {
                 const { data } = await axios.get(`${api_url}/recipes/${id}`);
                 setRecipe(data.data[0]);
+                const { data:ingredientData } = await axios.get(`${api_url}/recipe-ingredients/recipes/${id}`)
+                setIngredients(ingredientData.data);
             } catch(err){
                 console.error(err);
             }
@@ -49,8 +62,17 @@ const Recipe = () => {
         return info.split('```').filter(item => item.trim() !== '').map((item, index) => (
           <Text key={index} style={styles.sustainabilityItem}>• {item.trim()}</Text>
         ));
-      };
-    
+    };
+
+    const formatIngredients = () => {
+      if(!ingredients){
+        return;
+      }
+      return ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.ingredient}>{index + 1}. {ingredient.amount} {ingredient.name.trim()}  {ingredient.comments}</Text>
+      ));
+  };
+
       return (
         <SafeAreaView style={styles.safeArea}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
@@ -59,6 +81,8 @@ const Recipe = () => {
             <Text style={styles.author}>By: {recipe.author}</Text>
             <Text style={styles.category}>Category: {recipe.category}</Text>
             <Text style={styles.description}>{recipe.description}</Text>
+            <Text style={styles.sectionTitle}>Ingredients:</Text>
+            {formatIngredients()}
             <Text style={styles.sectionTitle}>Steps:</Text>
             {formatSteps(recipe.steps)}
             <Text style={styles.sectionTitle}>Sustainability Info:</Text>
@@ -134,6 +158,12 @@ const styles = StyleSheet.create({
       color: 'white'
     },
     step: {
+      fontSize: 16,
+      marginBottom: 8,
+      color: 'white',
+      fontWeight: 'bold'
+    },
+    ingredient: {
       fontSize: 16,
       marginBottom: 8,
       color: 'white',

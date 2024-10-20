@@ -1,4 +1,5 @@
 import  { supabase } from "../util/supabase";
+import { get_file_ext } from "../util";
 
 const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, user_generated?:boolean) => {
     const {data, error} = await supabase.from("recipes").insert([{
@@ -19,14 +20,15 @@ const createRecipe = async (title:string, author:string, description:string, ste
     }
     const recipeId:number = data[0].id;
 
-    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.png`, recipe_photo );
+    const ext = get_file_ext(recipe_photo);
+    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.${ext}`, recipe_photo );
     if (upload_error) {
         return {
             status: 500,
             error: upload_error.message
         }
     }
-    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.png`);
+    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.${ext}`);
     const {data:updated_data} = await supabase.from("recipes").update({"recipe_photo": photo_data.publicUrl}).eq("id", recipeId).select();
     
     return {

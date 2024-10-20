@@ -8,6 +8,7 @@ const recipesRouter = () => {
 
     router.post("/", async (req: Request, res: Response) => {
         const { title, description, steps, category, sustainability_info, recipe_photo, user_generated }: {title:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo: any, user_generated?:string} = req.body;
+        // console.info(req);
         // gets token to get user
         const token:string|undefined = req.get("x-access-token");
         const{data:{ user }} = await supabase.auth.getUser(token);
