@@ -1,7 +1,7 @@
-const get_file_ext = (file: File): string => {
-    let ext = file.type.toString();
-    let sections = ext.split("/");
-    ext = sections[sections.length - 1];
+const get_file_ext = (file: string): string => {
+    // let ext = file.type.toString();
+    let sections = file.split("/");
+    let ext = sections[sections.length - 1];
     return ext;
 }
 

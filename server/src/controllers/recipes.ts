@@ -1,7 +1,8 @@
 import  { supabase } from "../util/supabase";
 import { get_file_ext } from "../util";
+import { decode } from 'base64-arraybuffer';
 
-const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, user_generated?:boolean) => {
+const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, photo_type: string, user_generated?:boolean) => {
     const {data, error} = await supabase.from("recipes").insert([{
         title: title,
         author: author,
@@ -19,9 +20,11 @@ const createRecipe = async (title:string, author:string, description:string, ste
         }
     }
     const recipeId:number = data[0].id;
+    const photo = decode(recipe_photo.toString('base64'));
 
-    const ext = get_file_ext(recipe_photo);
-    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.${ext}`, recipe_photo );
+
+    const ext = get_file_ext(photo_type);
+    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.${ext}`, photo, { contentType: photo_type } );
     if (upload_error) {
         return {
             status: 500,
@@ -61,7 +64,29 @@ const getRecipe = async (id:number) => {
     };
 };
 
-const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, user_generated?:boolean) => {
+const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, photo_type:string, user_generated?:boolean) => {
+    const { data:recipe_data } = await supabase.from('recipes').select('recipe_photo').eq('id', id);
+    if (recipe_data) {
+        const { error:delete_error } = await supabase.storage.from('recipe-images').remove([recipe_data[0].recipe_photo.split("/").slice(-1)])
+        if (delete_error) {
+            return {
+                status: 500,
+                error: 'could not remove image'
+            }
+        }
+    };
+    const photo = decode(recipe_photo.toString('base64'));
+    const ext = get_file_ext(photo_type);
+    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${id}.${ext}`, photo, { contentType: photo_type } );
+    if (upload_error) {
+        return {
+            status: 500,
+            error: upload_error.message
+        }
+    }
+    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${id}.${ext}`);
+ 
+    
     const {data, error} = await supabase.from("recipes").update([{
         title: title,
         author: author,
@@ -69,7 +94,7 @@ const updateRecipe = async (id:number, title:string, author:string, description:
         steps: steps,
         category: category,
         sustainability_info: sustainability_info,
-        recipe_photo,
+        recipe_photo:photo_data.publicUrl,
         user_generated: user_generated??true
     }]).eq('id', id)
     .select();
