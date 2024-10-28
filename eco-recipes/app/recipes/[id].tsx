@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, Dimensions, Image } from 'react-native';
 import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 import axios from "axios";
@@ -32,12 +32,16 @@ const Recipe = () => {
     const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
+    const [placeholderUrl, setPlaceholderUrl] = useState<string>("");
 
     useEffect(()=>{
         const fetchRecipe = async () => {
             try {
                 const { data } = await axios.get(`${api_url}/recipes/${id}`);
                 setRecipe(data.data[0]);
+                setPlaceholderUrl(`https://placehold.co/400x300?text="Hi"`);
+                console.info(placeholderUrl);
+                console.info(data.data[0])
                 const { data:ingredientData } = await axios.get(`${api_url}/recipe-ingredients/recipes/${id}`)
                 setIngredients(ingredientData.data);
             } catch(err){
@@ -77,6 +81,21 @@ const Recipe = () => {
         <SafeAreaView style={styles.safeArea}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.content}>
+            {
+              // ternary: conditional rendering
+              recipe.recipe_photo !== null ? (
+                <Image 
+                source={{ uri: recipe.recipe_photo }} 
+                style = {{ width: Dimensions.get("window").width - 32, height: Dimensions.get("window").height * 0.25, borderRadius: 40 }}
+                />
+                ) : (
+                <Image 
+                source={{ uri: `https://fakeimg.pl/${Dimensions.get('window').width}x${Dimensions.get('window').height * 0.25}?text="${recipe.title}"` }} 
+                // src={ "https://placehold.co/1024x400?text=Recipe" } ?
+                style = {{ width: Dimensions.get("window").width - 32, height: Dimensions.get("window").height * 0.25, borderRadius: 40 }}
+                />
+              )
+            }
             <Text style={styles.title}>{recipe.title}</Text>
             <Text style={styles.author}>By: {recipe.author}</Text>
             <Text style={styles.category}>Category: {recipe.category}</Text>
