@@ -32,16 +32,12 @@ const Recipe = () => {
     const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
-    const [placeholderUrl, setPlaceholderUrl] = useState<string>("");
 
     useEffect(()=>{
         const fetchRecipe = async () => {
             try {
                 const { data } = await axios.get(`${api_url}/recipes/${id}`);
                 setRecipe(data.data[0]);
-                setPlaceholderUrl(`https://placehold.co/400x300?text="Hi"`);
-                console.info(placeholderUrl);
-                console.info(data.data[0])
                 const { data:ingredientData } = await axios.get(`${api_url}/recipe-ingredients/recipes/${id}`)
                 setIngredients(ingredientData.data);
             } catch(err){

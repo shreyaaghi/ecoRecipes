@@ -1,11 +1,16 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
+import { Link } from 'expo-router';
 import { Pressable } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import TabOneScreen from '.';
+import TabTwoScreen from './two';
+
+const Tabs = createBottomTabNavigator();
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -15,11 +20,13 @@ function TabBarIcon(props: {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
+
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
+    <Tabs.Navigator
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
@@ -28,6 +35,7 @@ export default function TabLayout() {
       }}>
       <Tabs.Screen
         name="index"
+        component={TabOneScreen}
         options={{
           title: 'Home Screen',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
@@ -49,11 +57,12 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="two"
+        component={TabTwoScreen}
         options={{
           title: 'Information',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
-    </Tabs>
+    </Tabs.Navigator>
   );
 }

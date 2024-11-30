@@ -173,4 +173,40 @@ const getAllRecipes = async (size:number, pageNumber:number) => {
     };
 };
 
-export { createRecipe, getRecipe, getAllRecipes, updateRecipe, deleteRecipe };
+const searchRecipes = async (title:string, size:number, pageNumber:number) => {
+    // paginating - showing 10 of 50 results, not pulling everything at once
+    const { data, error } = await supabase
+    .from('recipes').select('*').ilike("title", `%${title}%`).range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
+
+    console.info(data);
+    if (error) {
+        return {
+          status: 500,
+          error: error.message,
+        };
+    }
+      
+    if (!data || data.length == 0) {
+        return {
+          status: 404,
+          error: 'no recipes found',
+        };
+    }
+
+    const parsed = [];
+    for (let recipe of data){
+        let pRecipe: Record<string, string> = {};
+        pRecipe.id = recipe.id;
+        pRecipe.title = recipe.title;
+        pRecipe.recipe_photo = recipe.recipe_photo;
+
+        parsed.push(pRecipe);
+    }
+    
+    return {
+        status: 200,
+        data: parsed,
+    };
+};
+
+export { createRecipe, getRecipe, getAllRecipes, updateRecipe, deleteRecipe, searchRecipes };

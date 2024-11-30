@@ -4,11 +4,13 @@ import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { View } from "@/components/Themed";
 import { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { AuthNavigationProp } from './NavigationTypes';
+type SignupProps = { navigation: AuthNavigationProp; };
 import axios from "axios";
 
 export default function SignUp() {
-    const router = useRouter();
+    const navigation = useNavigation<AuthNavigationProp>();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
@@ -31,7 +33,7 @@ export default function SignUp() {
         
             if (signupData.data) {
                 await AsyncStorage.setItem('userToken', signupData.data);
-                router.replace('/(tabs)');
+                navigation.navigate("Login")
             } else {
                 setError('no token');
             }
@@ -40,7 +42,7 @@ export default function SignUp() {
         }
     };
     const goToLogin = () => {
-        router.replace('/auth/login');
+        navigation.navigate("Login");
     };
 
     return (
