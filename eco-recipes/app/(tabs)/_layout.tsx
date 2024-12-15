@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import TabOneScreen from '.';
 import TabTwoScreen from './two';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const Tabs = createBottomTabNavigator();
 
@@ -28,31 +29,25 @@ export default function TabLayout() {
   return (
     <Tabs.Navigator
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarStyle: {
+          backgroundColor: 'white',
+        },
+        tabBarActiveTintColor: Colors[colorScheme ?? 'dark'].tint,
+      
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        // headerShown: useClientOnlyValue(false, true),
+        headerShown: false,
+        // tabBarStyle: {{
+        //   backgroun
+        // }}
       }}>
       <Tabs.Screen
         name="index"
         component={TabOneScreen}
         options={{
           title: 'Home Screen',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -60,7 +55,7 @@ export default function TabLayout() {
         component={TabTwoScreen}
         options={{
           title: 'Information',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="info-circle" color={color} />,
         }}
       />
     </Tabs.Navigator>

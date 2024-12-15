@@ -4,7 +4,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 import axios from 'axios';
-import { RecipeButton } from "@/components/RecipeButton";
+import { ModalRecipeButton } from "@/components/ModalRecipeButton";
 
 const SearchModal = ({ modalVisible, setModalVisible }: any) => {
   const [recipeSearch, setRecipeSearch] = useState("");
@@ -57,7 +57,9 @@ const SearchModal = ({ modalVisible, setModalVisible }: any) => {
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <RecipeButton id={item.id} name={item.title} />}
+              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} closeModal={()=>
+                setModalVisible(!modalVisible)
+              } />}
               keyExtractor={(plan: any) => plan.id}
             ></FlatList>
           </View>

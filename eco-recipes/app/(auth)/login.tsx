@@ -6,8 +6,15 @@ import { View } from "@/components/Themed";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import { AuthNavigationProp } from './NavigationTypes';
+type SignupProps = { navigation: AuthNavigationProp; };
 
 export default function Login() {
+    // React.useEffect(() => {
+    //     console.info("Made it to Login")
+    // }, []);
+    const navigation = useNavigation<AuthNavigationProp>();
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -39,7 +46,8 @@ export default function Login() {
         }
       };
     const goToSignup = () => {
-        router.replace('/auth/signup');
+        // router.replace("/(auth)/Signup");
+        navigation.navigate("Signup")
     };
 
 

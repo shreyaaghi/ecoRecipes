@@ -1,16 +1,19 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, SafeAreaView } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
 import axios from 'axios';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchModal } from './components/SearchModal';
-
+import { useNavigation } from '@react-navigation/native';
+// import { AuthNavigationProp } from '../NavigationTypes';
 
 const RecipesScreen: React.FC = () => {
   const [data, setData] = useState<Record<string, unknown>[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const api_url = process.env.EXPO_PUBLIC_API_URL||"";
+  const navigation = useNavigation();
+  navigation.setOptions({ headerShown: false })
   useEffect(()=>{
     (
       async () => {
@@ -23,7 +26,8 @@ const RecipesScreen: React.FC = () => {
     )();
   }, [data?.length > 0]);
   return (
-  <>
+  <SafeAreaView style={{flex: 1, backgroundColor: "#4BA9FF"}}>
+  {/* <> */}
   
     <View style={styles.container}>
       <View style={styles.header}>
@@ -37,9 +41,9 @@ const RecipesScreen: React.FC = () => {
         }}>
             <FontAwesome 
             disabled={true}
-              name="search" 
-              size={50} 
-              color="white"
+            name="search" 
+            size={50} 
+            color="white"
             />
         </TouchableOpacity>
       </View>
@@ -51,7 +55,8 @@ const RecipesScreen: React.FC = () => {
         <SearchModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
          
         </View>
-        </>
+        {/* </> */}
+      </SafeAreaView>
 
   );
 };

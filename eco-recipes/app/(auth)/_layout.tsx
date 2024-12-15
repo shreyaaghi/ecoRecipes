@@ -11,8 +11,13 @@ import { AuthStackParamList } from "./NavigationTypes";
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export default function Layout() {
+    // React.useEffect(() => {
+    //     console.info("Made it to (auth)/_layout")
+    // }, []);
     return (
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{
+            headerShown: false
+        }}>
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }}></Stack.Screen>
             <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }}></Stack.Screen>
         </Stack.Navigator>
