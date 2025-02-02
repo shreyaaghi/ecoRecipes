@@ -9,7 +9,9 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import TabOneScreen from '.';
 import TabTwoScreen from './two';
+import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import CreateRecipeScreen from './CreateRecipe';
 
 const Tabs = createBottomTabNavigator();
 
@@ -30,7 +32,8 @@ export default function TabLayout() {
     <Tabs.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: '#4BA9FF',
+          borderTopColor: "transparent",
         },
         tabBarActiveTintColor: Colors[colorScheme ?? 'dark'].tint,
       
@@ -48,6 +51,14 @@ export default function TabLayout() {
         options={{
           title: 'Home Screen',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="CreateRecipe"
+        component={CreateRecipeScreen}
+        options={{
+          title: 'Create Recipe',
+          tabBarIcon: ({ color, size }) => <AntDesign name="pluscircle" style={{ marginBottom: -3 }} color={'#4CAF50'} size={30} />
         }}
       />
       <Tabs.Screen
