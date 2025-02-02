@@ -11,7 +11,7 @@ import { IngredientInput } from "./components"
 
 interface Ingredient {
     name: string;
-    amount: string|number;
+    amount: string | number;
     comments: string;
 }
 
@@ -23,8 +23,8 @@ export default function CreateRecipeScreen() {
     const [amount, setAmount] = useState<string>("");
     const [comments, setComments] = useState<string>("");
     const [ingredients, setIngredients] = useState<Ingredient[]>([
-        {name: "", amount: 0, comments:""},
-        {name: "", amount: 0, comments:""}
+        { name: "", amount: 0, comments: "" },
+        { name: "", amount: 0, comments: "" }
     ]);
 
     const handleSubmit = () => {
@@ -33,7 +33,7 @@ export default function CreateRecipeScreen() {
     };
 
     const addIngredientInput = () => {
-        // TODO HW: when add ingredient button clicked, new IngredientInput component goes below
+        setIngredients([...ingredients, { name: "", amount: "", comments: "" }]);
         console.info("New ingredient")
     }
 
@@ -52,8 +52,17 @@ export default function CreateRecipeScreen() {
                     <TouchableOpacity style={styles.ingredientButton} onPress={addIngredientInput}>
                         <Text style={styles.buttonText}>Add Ingredient</Text>
                     </TouchableOpacity>
-                    <IngredientInput index={0} setIngredients={setIngredients} ingredients={ingredients} />
-                    <IngredientInput index={1} setIngredients={setIngredients} ingredients={ingredients} />
+
+                    {ingredients.map((ingredient, index) => (
+                        <IngredientInput
+                            key={index}
+                            index={index}
+                            setIngredients={setIngredients}
+                            ingredients={ingredients}
+                        />
+                    ))}
+
+
                     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                         <Text style={styles.buttonText}>Submit</Text>
                     </TouchableOpacity>
