@@ -30,11 +30,25 @@ export default function CreateRecipeScreen() {
     const handleSubmit = () => {
         console.log("Title:", title);
         console.log("Description:", description);
+        // work on w/edward
     };
 
     const addIngredientInput = () => {
         setIngredients([...ingredients, { name: "", amount: "", comments: "" }]);
         console.info("New ingredient")
+    }
+
+    // removeIngredient -> property is indexToRemove
+    // check if there is more than one ingredient
+    // use setIngredients, 
+    // use filter? look at each ingredient one by one, keep it only if its index is NOT equal to 1
+    // _ --> we dont care about the ingredient itself, only index
+    // ingredients.filter((_, index) => index !== indexToRemove)
+
+    const removeIngredient = (indexToRemove: number) => {
+        if (ingredients.length > 1) {
+            setIngredients(ingredients.filter((_, index) => index !== indexToRemove));
+        }
     }
 
     return (
@@ -54,12 +68,21 @@ export default function CreateRecipeScreen() {
                     </TouchableOpacity>
 
                     {ingredients.map((ingredient, index) => (
-                        <IngredientInput
-                            key={index}
-                            index={index}
-                            setIngredients={setIngredients}
-                            ingredients={ingredients}
-                        />
+                        <View key={index} style={styles.ingredientContainer}>
+                            <IngredientInput 
+                                index={index} 
+                                setIngredients={setIngredients} 
+                                ingredients={ingredients} 
+                            />
+                            {index > 0 && (
+                                <TouchableOpacity 
+                                    style={styles.removeButton}
+                                    onPress={() => removeIngredient(index)}
+                                >
+                                    <Text style={styles.removeButtonText}>✕</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
                     ))}
 
 
@@ -140,5 +163,27 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         paddingHorizontal: 10,
         paddingBottom: 10
+    },
+    ingredientContainer: {
+        position: 'relative',
+        width: '100%',
+        paddingRight: 40,
+    },
+    removeButton: {
+        position: 'absolute',
+        right: 5,
+        top: 15,
+        backgroundColor: '#ff4444',
+        borderRadius: 15,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+    },
+    removeButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });  

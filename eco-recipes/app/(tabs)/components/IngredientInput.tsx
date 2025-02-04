@@ -7,7 +7,7 @@ interface Ingredient {
     comments: string;
 }
 
-// get updateName to work for only one of them  
+
 const IngredientInput = ({ index, setIngredients, ingredients }: any) => {
     const update = (val: string, type: string) => {
         setIngredients(ingredients.map((ingredient: Ingredient, i: number) => {
@@ -18,6 +18,7 @@ const IngredientInput = ({ index, setIngredients, ingredients }: any) => {
         }));
     }
    
+    // steps, sustainability information 
     
     return (
         <View>
