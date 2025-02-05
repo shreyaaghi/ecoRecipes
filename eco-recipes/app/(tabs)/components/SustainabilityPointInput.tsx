@@ -1,48 +1,26 @@
 import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
 
-interface Ingredient {
-    [props: string|number]: any;
-    name: string;
-    amount: string|number;
-    comments: string;
-}
-
-
-const IngredientInput = ({ index, setIngredients, ingredients }: any) => {
-    const update = (val: string, type: string) => {
-        setIngredients(ingredients.map((ingredient: Ingredient, i: number) => {
+const SustainabilityPointInput = ({ index, setSustainabilityInformation, sustainabilityInformation }: any) => {
+    const update = (val: string) => {
+        setSustainabilityInformation(sustainabilityInformation.map((sustainabilityPoint: string, i: number) => {
             if(i === index){
-                ingredient[type] = val;
+                return val;
             }
-            return ingredient
+            return sustainabilityPoint;
         }));
     }
    
-    // steps, sustainability information, category 
+    //category 
     
     return (
         <View>
             <View style={styles.container}>
-            <Text style={styles.titles}>Ingredient</Text>
+            <Text style={styles.titles}>Sustainability Point {index + 1}</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder={`Enter name here (ex. Vanilla Extract) `}
-                    value={ingredients[index].name}
-                    onChangeText={(text => update(text, "name"))}
-                    clearButtonMode="while-editing"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder={`Enter amount here (ex. 3 tbsp, a pinch) `}
-                    value={ingredients[index].amount}
-                    onChangeText={(text => update(text, "amount"))}
-                    clearButtonMode="while-editing"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder={`Enter comments here (ex. "optional")`}
-                    value={ingredients[index].comments}
-                    onChangeText={(text => update(text, "comments"))}
+                    placeholder={`Enter sustainability point ${index + 1} here (ex. plant-based ingredients)`}
+                    value={sustainabilityInformation[index]}
+                    onChangeText={(text => update(text))}
                     clearButtonMode="while-editing"
                 />
             </View>
@@ -50,7 +28,7 @@ const IngredientInput = ({ index, setIngredients, ingredients }: any) => {
     )
 };
 
-export { IngredientInput };
+export { SustainabilityPointInput };
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -61,7 +39,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-start',
         paddingHorizontal: 5,
-        marginVertical: 15,
+        marginVertical: 5,
         justifyContent: "space-evenly"
     },
     input: {

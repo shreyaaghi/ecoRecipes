@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { FormInput } from "./components"
 import { IngredientInput } from "./components"
+import { StepInput } from "./components";
+import { SustainabilityPointInput } from "./components";
 
 interface Ingredient {
     name: string;
@@ -24,8 +26,9 @@ export default function CreateRecipeScreen() {
     const [comments, setComments] = useState<string>("");
     const [ingredients, setIngredients] = useState<Ingredient[]>([
         { name: "", amount: 0, comments: "" },
-        { name: "", amount: 0, comments: "" }
     ]);
+    const [steps, setSteps] = useState<string[]>([""]);
+    const [sustainabilityInformation, setSustainabilityInformation] = useState<string[]>([""]);
 
     const handleSubmit = () => {
         console.log("Title:", title);
@@ -38,6 +41,16 @@ export default function CreateRecipeScreen() {
         console.info("New ingredient")
     }
 
+    const addStepInput = () => {
+        setSteps([...steps, ""])
+        console.info("New step!")
+    }
+
+    const addSustainabilityPointInput = () => {
+        setSustainabilityInformation([...sustainabilityInformation, ""])
+        console.info("New sus. info!")
+    }
+
     // removeIngredient -> property is indexToRemove
     // check if there is more than one ingredient
     // use setIngredients, 
@@ -48,6 +61,18 @@ export default function CreateRecipeScreen() {
     const removeIngredient = (indexToRemove: number) => {
         if (ingredients.length > 1) {
             setIngredients(ingredients.filter((_, index) => index !== indexToRemove));
+        }
+    }
+
+    const removeStep = (indexToRemove: number) => {
+        if (steps.length > 1) {
+            setSteps(steps.filter((_, index) => index !== indexToRemove));
+        }
+    }
+
+    const removeSustainabilityInfo = (indexToRemove: number) => {
+        if (sustainabilityInformation.length > 1) {
+            setSustainabilityInformation(sustainabilityInformation.filter((_, index) => index !== indexToRemove));
         }
     }
 
@@ -69,13 +94,13 @@ export default function CreateRecipeScreen() {
 
                     {ingredients.map((ingredient, index) => (
                         <View key={index} style={styles.ingredientContainer}>
-                            <IngredientInput 
-                                index={index} 
-                                setIngredients={setIngredients} 
-                                ingredients={ingredients} 
+                            <IngredientInput
+                                index={index}
+                                setIngredients={setIngredients}
+                                ingredients={ingredients}
                             />
                             {index > 0 && (
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     style={styles.removeButton}
                                     onPress={() => removeIngredient(index)}
                                 >
@@ -85,6 +110,49 @@ export default function CreateRecipeScreen() {
                         </View>
                     ))}
 
+                    <TouchableOpacity style={styles.ingredientButton} onPress={addStepInput}>
+                        <Text style={styles.buttonText}>Add Step</Text>
+                    </TouchableOpacity>
+
+                    {steps.map((step, index) => (
+                        <View key={index} style={styles.ingredientContainer}>
+                            <StepInput
+                                index={index}
+                                setSteps={setSteps}
+                                steps={steps}
+                            />
+                            {index > 0 && (
+                                <TouchableOpacity
+                                    style={styles.removeButton}
+                                    onPress={() => removeStep(index)}
+                                >
+                                    <Text style={styles.removeButtonText}>✕</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    ))}
+
+<TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
+                        <Text style={styles.buttonText}>Add Sustainability Point</Text>
+                    </TouchableOpacity>
+
+                    {sustainabilityInformation.map((sustainabilityPoint, index) => (
+                        <View key={index} style={styles.ingredientContainer}>
+                            <SustainabilityPointInput
+                                index={index}
+                                setSustainabilityInformation={setSustainabilityInformation}
+                                sustainabilityInformation={sustainabilityInformation}
+                            />
+                            {index > 0 && (
+                                <TouchableOpacity
+                                    style={styles.removeButton}
+                                    onPress={() => removeSustainabilityInfo(index)}
+                                >
+                                    <Text style={styles.removeButtonText}>✕</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    ))}
 
                     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                         <Text style={styles.buttonText}>Submit</Text>
