@@ -10,6 +10,8 @@ import { FormInput } from "./components"
 import { IngredientInput } from "./components"
 import { StepInput } from "./components";
 import { SustainabilityPointInput } from "./components";
+import { RecipeCategory } from './components/types';
+import { CategoryInput } from "./components/CategoryInput";
 
 interface Ingredient {
     name: string;
@@ -29,6 +31,7 @@ export default function CreateRecipeScreen() {
     ]);
     const [steps, setSteps] = useState<string[]>([""]);
     const [sustainabilityInformation, setSustainabilityInformation] = useState<string[]>([""]);
+    const [category, setCategory] = useState<RecipeCategory>('Breakfast');
 
     const handleSubmit = () => {
         console.log("Title:", title);
@@ -132,7 +135,7 @@ export default function CreateRecipeScreen() {
                         </View>
                     ))}
 
-<TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
+                    <TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
                         <Text style={styles.buttonText}>Add Sustainability Point</Text>
                     </TouchableOpacity>
 
@@ -153,6 +156,11 @@ export default function CreateRecipeScreen() {
                             )}
                         </View>
                     ))}
+
+                    <CategoryInput
+                        category={category}
+                        setCategory={setCategory}
+                    />
 
                     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                         <Text style={styles.buttonText}>Submit</Text>

@@ -1,0 +1,1 @@
+export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Desserts' | 'Drinks';
