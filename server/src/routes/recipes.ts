@@ -9,12 +9,11 @@ const recipesRouter = () => {
     const router = Router();
     router.get("/", (req: Request, res: Response) => res.send("recipes"));
 
-    router.post("/", upload.single("recipe_photo"), async (req: Request, res: Response) => {
-        const { title, description, steps, category, sustainability_info, user_generated }: { title: string, description: string, steps: string, category: string, sustainability_info: string, user_generated?: string } = req.body;
-        const recipe_photo = req.file.buffer;
-        const mime_type = req.file.mimetype;
-        // console.info(req);
-        // gets token to get user
+    router.post("/", async (req: Request, res: Response) => {
+        const 
+        { title, description, steps, category, sustainability_info, user_generated, recipe_photo, mime_type }:
+         { title: string, description: string, steps: string, category: string, sustainability_info: string, user_generated?: string, recipe_photo:string, mime_type:string } = req.body;
+
         const token: string | undefined = req.get("x-access-token");
         const { data: { user } } = await supabase.auth.getUser(token);
         if (!user) {
@@ -59,6 +58,7 @@ const recipesRouter = () => {
         return res.send(await getRecipe(id));
     });
 
+    // TO DO: change recipe_photo from body
     router.put("/:id", upload.single("recipe_photo"), async (req: Request, res: Response) => {
         const id: number = parseInt(req.params.id);
 

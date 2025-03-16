@@ -20,7 +20,8 @@ const createRecipe = async (title:string, author:string, description:string, ste
         }
     }
     const recipeId:number = data[0].id;
-    const photo = decode(recipe_photo.toString('base64'));
+    const photo = decode(recipe_photo);
+    // const photo = decode(recipe_photo.toString('base64'));
 
 
     const ext = get_file_ext(photo_type);
@@ -64,6 +65,7 @@ const getRecipe = async (id:number) => {
     };
 };
 
+// TO DO: change recipe_photo from body
 const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, photo_type:string, user_generated?:boolean) => {
     const { data:recipe_data } = await supabase.from('recipes').select('recipe_photo').eq('id', id);
     if (recipe_data) {

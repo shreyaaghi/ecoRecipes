@@ -1,9 +1,7 @@
 import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions } from 'react-native';
 import { useEffect, useState } from "react";
 import { useRouter } from 'expo-router';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View, ScrollView, Button, TextInput } from 'react-native';
-import { HomeNavButton } from '@/components/HomeNavButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { FormInput } from "./components"
@@ -12,6 +10,7 @@ import { StepInput } from "./components";
 import { SustainabilityPointInput } from "./components";
 import { RecipeCategory } from './components/types';
 import { CategoryInput } from "./components/CategoryInput";
+import { ImageInput } from './components/ImageInput';
 
 interface Ingredient {
     name: string;
@@ -23,20 +22,34 @@ export default function CreateRecipeScreen() {
     const router = useRouter();
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
-    const [name, setName] = useState<string>("");
-    const [amount, setAmount] = useState<string>("");
-    const [comments, setComments] = useState<string>("");
     const [ingredients, setIngredients] = useState<Ingredient[]>([
         { name: "", amount: 0, comments: "" },
     ]);
     const [steps, setSteps] = useState<string[]>([""]);
     const [sustainabilityInformation, setSustainabilityInformation] = useState<string[]>([""]);
     const [category, setCategory] = useState<RecipeCategory>('Breakfast');
+    const [recipeImage, setRecipeImage] = useState<string | null>(null);
+    const [recipeMimeType, setRecipeMimeType] = useState<string | undefined>(undefined);
 
     const handleSubmit = () => {
+        let body: any = {};
+        body["title"] = title;
+        body["description"] = description;
+        
+        body["category"] = category;
+        body["recipe_photo"] = recipeImage;
+        body["mime_type"] = recipeMimeType;
+
         console.log("Title:", title);
         console.log("Description:", description);
-        // work on w/edward
+        // need to be strings
+        console.log("Ingredients:", ingredients);
+        console.log("Steps:", steps);
+        console.log("Sustainability Info:", sustainabilityInformation);
+        
+        console.log("Category:", category);
+        console.log("Recipe Image:", recipeImage?.length);
+        console.log("Recipe Mime Type:", recipeMimeType);
     };
 
     const addIngredientInput = () => {
@@ -53,13 +66,6 @@ export default function CreateRecipeScreen() {
         setSustainabilityInformation([...sustainabilityInformation, ""])
         console.info("New sus. info!")
     }
-
-    // removeIngredient -> property is indexToRemove
-    // check if there is more than one ingredient
-    // use setIngredients, 
-    // use filter? look at each ingredient one by one, keep it only if its index is NOT equal to 1
-    // _ --> we dont care about the ingredient itself, only index
-    // ingredients.filter((_, index) => index !== indexToRemove)
 
     const removeIngredient = (indexToRemove: number) => {
         if (ingredients.length > 1) {
@@ -161,6 +167,9 @@ export default function CreateRecipeScreen() {
                         category={category}
                         setCategory={setCategory}
                     />
+
+                    <ImageInput image={recipeImage}
+                        setImage={setRecipeImage} mimeType={recipeMimeType} setMimeType={setRecipeMimeType} />
 
                     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                         <Text style={styles.buttonText}>Submit</Text>

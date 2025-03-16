@@ -3,3 +3,4 @@ export * from "./IngredientInput";
 export * from "./StepInput";
 export * from "./SustainabilityPointInput";
 export * from "./CategoryInput";
+export * from "./ImageInput";
