@@ -30,26 +30,69 @@ export default function CreateRecipeScreen() {
     const [category, setCategory] = useState<RecipeCategory>('Breakfast');
     const [recipeImage, setRecipeImage] = useState<string | null>(null);
     const [recipeMimeType, setRecipeMimeType] = useState<string | undefined>(undefined);
+    const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 
-    const handleSubmit = () => {
-        let body: any = {};
-        body["title"] = title;
-        body["description"] = description;
-        
-        body["category"] = category;
-        body["recipe_photo"] = recipeImage;
-        body["mime_type"] = recipeMimeType;
+    const handleSubmit = async () => {
+        try {
+            const recipeBody: any = {
+                title: title,
+                description: description,
+                steps: steps.join("```"),
+                category: category,
+                sustainability_info: sustainabilityInformation.join("```"),
+                recipe_photo: recipeImage,
+                mime_type: recipeMimeType,
+                user_generated: "true"
+            };
 
-        console.log("Title:", title);
-        console.log("Description:", description);
-        // need to be strings
-        console.log("Ingredients:", ingredients);
-        console.log("Steps:", steps);
-        console.log("Sustainability Info:", sustainabilityInformation);
-        
-        console.log("Category:", category);
-        console.log("Recipe Image:", recipeImage?.length);
-        console.log("Recipe Mime Type:", recipeMimeType);
+            const recipeResponse = await axios.post(`${api_url}/recipes/`, recipeBody);
+
+
+            const data = recipeResponse.data.data;
+            const recipeId = data[0].id;
+
+            console.log(data);
+            console.log("recipe created w/ id:", recipeId);
+
+            for (const ingredient of ingredients) {
+                if (!ingredient.name.trim()) 
+                    continue; // skip empty ingredients
+
+                // check if ingredient exists, create if not
+                let ingredientId;
+                try {
+                    // get the ingredient by name
+                    const ingredientResponse = await axios.get(`${api_url}/ingredients/${ingredient.name}`);
+                    // const ingredientResponse = await axios.get(`${api_url}/ingredients/${encodeURIComponent(ingredient.name)}`);
+                    ingredientId = ingredientResponse.data.data[0].id;
+                    // NOTE data.data[0] will likely show up more...
+                    console.log(ingredientResponse)
+                    console.log("found existing ingredient:", ingredient.name, "w/ ID:", ingredientId);
+                } catch (error) {
+                    // ingredient doesn't exist --> create it
+                    const newIngredientResponse = await axios.post(`${api_url}/ingredients/`, { name: ingredient.name.trim() });
+                    ingredientId = newIngredientResponse.data.data[0].id;
+                    console.log("created new ingredient:", ingredient.name, "w/ ID:", ingredientId);
+                }
+
+                // create recipe-ingredient pair
+                const pairBody = {
+                    recipeId: recipeId,
+                    ingredientId: ingredientId,
+                    amount: ingredient.amount.toString(),
+                    comments: ingredient.comments
+                };
+
+                await axios.post(`${api_url}/recipe-ingredients/`, pairBody);
+                console.log("created pair:", pairBody);
+            }
+
+            console.log("Recipe creation completed successfully!");
+            router.navigate('/recipes');
+
+        } catch (error) {
+            console.error('Error in recipe creation process:', error);
+        }
     };
 
     const addIngredientInput = () => {

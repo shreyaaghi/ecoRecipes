@@ -22,6 +22,7 @@ app.use(cors({
     "origin": "*",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
 }));
+
 app.use("/auth", authRouter());
 app.use("/recipes", recipesRouter());
 app.use("/ingredients", ingredientsRouter());

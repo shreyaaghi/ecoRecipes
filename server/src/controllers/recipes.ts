@@ -1,9 +1,9 @@
-import  { supabase } from "../util/supabase";
+import { supabase } from "../util/supabase";
 import { get_file_ext } from "../util";
 import { decode } from 'base64-arraybuffer';
 
-const createRecipe = async (title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, photo_type: string, user_generated?:boolean) => {
-    const {data, error} = await supabase.from("recipes").insert([{
+const createRecipe = async (title: string, author: string, description: string, steps: string, category: string, sustainability_info: string, recipe_photo: any, photo_type: string, user_generated?: boolean) => {
+    const { data, error } = await supabase.from("recipes").insert([{
         title: title,
         author: author,
         description: description,
@@ -11,54 +11,60 @@ const createRecipe = async (title:string, author:string, description:string, ste
         category: category,
         sustainability_info: sustainability_info,
         // recipe_photo: ,
-        user_generated: user_generated??true
+        user_generated: user_generated ?? true
     }]).select();
     if (error) {
         return {
-            status:500,
-            error:error.message
-        }
-    }
-    const recipeId:number = data[0].id;
-    const photo = decode(recipe_photo);
-    // const photo = decode(recipe_photo.toString('base64'));
-
-
-    const ext = get_file_ext(photo_type);
-    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${recipeId}.${ext}`, photo, { contentType: photo_type } );
-    if (upload_error) {
-        return {
             status: 500,
-            error: upload_error.message
+            error: error.message
         }
     }
-    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.${ext}`);
-    const {data:updated_data} = await supabase.from("recipes").update({"recipe_photo": photo_data.publicUrl}).eq("id", recipeId).select();
-    
+    const recipeId: number = data[0].id;
+    // const photo = decode(recipe_photo);
+
+    if (recipe_photo) {
+        const photo = decode(recipe_photo?.toString('base64'));
+
+        const ext = get_file_ext(photo_type);
+        const { error: upload_error } = await supabase.storage.from("recipe-images").upload(`${recipeId}.${ext}`, photo, { contentType: photo_type });
+        if (upload_error) {
+            return {
+                status: 500,
+                error: upload_error.message
+            }
+        }
+        const { data: photo_data } = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.${ext}`);
+        const { data: updated_data } = await supabase.from("recipes").update({ "recipe_photo": photo_data.publicUrl }).eq("id", recipeId).select();
+        return {
+            status: 200,
+            data: updated_data
+        }
+
+    }
     return {
-        status:200,
-        data:updated_data
+        status: 200,
+        data: data
     }
 };
 
-const getRecipe = async (id:number) => {
+const getRecipe = async (id: number) => {
     const { data, error } = await supabase
-    .from('recipes').select('*').eq('id', id)
+        .from('recipes').select('*').eq('id', id)
 
     if (error) {
         return {
-          status: 500,
-          error: error.message,
+            status: 500,
+            error: error.message,
         };
     }
-      
+
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'recipe not found',
+            status: 404,
+            error: 'recipe not found',
         };
     }
-    
+
     return {
         status: 200,
         data: data,
@@ -66,10 +72,10 @@ const getRecipe = async (id:number) => {
 };
 
 // TO DO: change recipe_photo from body
-const updateRecipe = async (id:number, title:string, author:string, description:string, steps:string, category:string, sustainability_info:string, recipe_photo:any, photo_type:string, user_generated?:boolean) => {
-    const { data:recipe_data } = await supabase.from('recipes').select('recipe_photo').eq('id', id);
+const updateRecipe = async (id: number, title: string, author: string, description: string, steps: string, category: string, sustainability_info: string, recipe_photo: any, photo_type: string, user_generated?: boolean) => {
+    const { data: recipe_data } = await supabase.from('recipes').select('recipe_photo').eq('id', id);
     if (recipe_data) {
-        const { error:delete_error } = await supabase.storage.from('recipe-images').remove([recipe_data[0].recipe_photo.split("/").slice(-1)])
+        const { error: delete_error } = await supabase.storage.from('recipe-images').remove([recipe_data[0].recipe_photo.split("/").slice(-1)])
         if (delete_error) {
             return {
                 status: 500,
@@ -79,88 +85,88 @@ const updateRecipe = async (id:number, title:string, author:string, description:
     };
     const photo = decode(recipe_photo.toString('base64'));
     const ext = get_file_ext(photo_type);
-    const { error:upload_error } = await supabase.storage.from("recipe-images").upload( `${id}.${ext}`, photo, { contentType: photo_type } );
+    const { error: upload_error } = await supabase.storage.from("recipe-images").upload(`${id}.${ext}`, photo, { contentType: photo_type });
     if (upload_error) {
         return {
             status: 500,
             error: upload_error.message
         }
     }
-    const {data:photo_data} = await supabase.storage.from("recipe-images").getPublicUrl(`${id}.${ext}`);
- 
-    
-    const {data, error} = await supabase.from("recipes").update([{
+    const { data: photo_data } = await supabase.storage.from("recipe-images").getPublicUrl(`${id}.${ext}`);
+
+
+    const { data, error } = await supabase.from("recipes").update([{
         title: title,
         author: author,
         description: description,
         steps: steps,
         category: category,
         sustainability_info: sustainability_info,
-        recipe_photo:photo_data.publicUrl,
-        user_generated: user_generated??true
+        recipe_photo: photo_data.publicUrl,
+        user_generated: user_generated ?? true
     }]).eq('id', id)
-    .select();
+        .select();
 
     if (error) {
         return {
-            status:500,
-            error:error.message
+            status: 500,
+            error: error.message
         }
     }
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'recipe not found',
+            status: 404,
+            error: 'recipe not found',
         };
     }
     return {
-        status:200,
-        data:data
-    }
-};
-
-const deleteRecipe = async (id:number) => {
-    const {data, error} = await supabase.from("recipes").delete().eq('id', id).select();
-    if (error) {
-        return {
-          status: 500,
-          error: error.message,
-        };
-      }
-      
-      if (!data || data.length == 0) {
-        return {
-          status: 404,
-          error: 'recipe not found',
-        };
-      }
-      return {
         status: 200,
-        message: 'recipe deleted',
-      }
+        data: data
+    }
 };
 
-const getAllRecipes = async (size:number, pageNumber:number) => {
-    // paginating - showing 10 of 50 results, not pulling everything at once
-    const { data, error } = await supabase
-    .from('recipes').select('*').range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
-
+const deleteRecipe = async (id: number) => {
+    const { data, error } = await supabase.from("recipes").delete().eq('id', id).select();
     if (error) {
         return {
-          status: 500,
-          error: error.message,
+            status: 500,
+            error: error.message,
         };
     }
-      
+
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'no recipes found',
+            status: 404,
+            error: 'recipe not found',
+        };
+    }
+    return {
+        status: 200,
+        message: 'recipe deleted',
+    }
+};
+
+const getAllRecipes = async (size: number, pageNumber: number) => {
+    // paginating - showing 10 of 50 results, not pulling everything at once
+    const { data, error } = await supabase
+        .from('recipes').select('*').range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
+
+    if (error) {
+        return {
+            status: 500,
+            error: error.message,
+        };
+    }
+
+    if (!data || data.length == 0) {
+        return {
+            status: 404,
+            error: 'no recipes found',
         };
     }
 
     const parsed = [];
-    for (let recipe of data){
+    for (let recipe of data) {
         let pRecipe: Record<string, string> = {};
         pRecipe.id = recipe.id;
         pRecipe.title = recipe.title;
@@ -168,35 +174,35 @@ const getAllRecipes = async (size:number, pageNumber:number) => {
 
         parsed.push(pRecipe);
     }
-    
+
     return {
         status: 200,
         data: parsed,
     };
 };
 
-const searchRecipes = async (title:string, size:number, pageNumber:number) => {
+const searchRecipes = async (title: string, size: number, pageNumber: number) => {
     // paginating - showing 10 of 50 results, not pulling everything at once
     const { data, error } = await supabase
-    .from('recipes').select('*').ilike("title", `%${title}%`).range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
+        .from('recipes').select('*').ilike("title", `%${title}%`).range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
 
     console.info(data);
     if (error) {
         return {
-          status: 500,
-          error: error.message,
+            status: 500,
+            error: error.message,
         };
     }
-      
+
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'no recipes found',
+            status: 404,
+            error: 'no recipes found',
         };
     }
 
     const parsed = [];
-    for (let recipe of data){
+    for (let recipe of data) {
         let pRecipe: Record<string, string> = {};
         pRecipe.id = recipe.id;
         pRecipe.title = recipe.title;
@@ -204,7 +210,7 @@ const searchRecipes = async (title:string, size:number, pageNumber:number) => {
 
         parsed.push(pRecipe);
     }
-    
+
     return {
         status: 200,
         data: parsed,
