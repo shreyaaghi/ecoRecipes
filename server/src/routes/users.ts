@@ -14,6 +14,11 @@ const usersRouter = () => {
         const userId:string = user.id;
         return res.send(await getUser(userId));
     })
+
+    router.get("/:id", async (req: Request, res: Response) => {
+        const id = req.params.id;
+        return res.send(await getUser(id));
+    })
     return router;
 }
 

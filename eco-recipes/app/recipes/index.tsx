@@ -27,7 +27,8 @@ const RecipesScreen: React.FC = () => {
         } catch (err) { }
       }
     )();
-  }, [data?.length > 0]);
+  }, []);
+  // data?.length > 0 in brackets above?
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>
       {/* <> */}
@@ -52,11 +53,13 @@ const RecipesScreen: React.FC = () => {
             />
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={data}
-          renderItem={({ item }: any) => <RecipeButton id={item.id} name={item.title} />}
-          keyExtractor={(plan: any) => plan.id}
-        ></FlatList>
+        <View style={styles.listContainer}>
+          <FlatList
+            data={data}
+            renderItem={({ item }: any) => <RecipeButton id={item.id} name={item.title} />}
+            keyExtractor={(plan: any) => plan.id}
+          ></FlatList>
+        </View>
         <SearchModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
 
       </View>
@@ -86,21 +89,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 20,
-    paddingBottom: 25,
+    paddingBottom: 15,
+  },
+  listContainer: {
     flex: 1,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: 'white',
-    // marginBottom: 10,
-    // paddingBottom: 25
   },
   subtitle: {
     fontSize: 16,
     color: 'white',
-    // maxWidth: '80%',
-    // paddingBottom: 20,
   },
   button: {
     backgroundColor: '#4CAF50',
@@ -118,5 +119,6 @@ const styles = StyleSheet.create({
     // padding: 15,
   },
 });
+
 
 export default RecipesScreen;

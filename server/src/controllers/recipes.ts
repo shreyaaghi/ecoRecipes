@@ -1,6 +1,7 @@
 import { supabase } from "../util/supabase";
 import { get_file_ext } from "../util";
 import { decode } from 'base64-arraybuffer';
+import { getUser } from './users';
 
 const createRecipe = async (title: string, author: string, description: string, steps: string, category: string, sustainability_info: string, recipe_photo: any, photo_type: string, user_generated?: boolean) => {
     const { data, error } = await supabase.from("recipes").insert([{
@@ -64,6 +65,12 @@ const getRecipe = async (id: number) => {
             error: 'recipe not found',
         };
     }
+
+    let userId = data[0].author;
+    const user = await supabase.from("users").select().eq("id", userId).single();
+    let username = user.data.username;
+
+    data[0].author = username;
 
     return {
         status: 200,
