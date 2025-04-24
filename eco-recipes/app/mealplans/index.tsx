@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList } from 'react-native';
 import { MealPlanButton } from '@/components/MealPlanButton';
+import { useRouter } from 'expo-router';
 
 const MealPlansScreen: React.FC = () => {
+  const router = useRouter();
   const data = [
     {
       id: "hello",
@@ -24,7 +26,7 @@ const MealPlansScreen: React.FC = () => {
             />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => router.navigate(`/mealplans/CreateMealPlan/`)}>
         <Text style={styles.buttonText}>Create Meal Plan</Text>
       </TouchableOpacity>
       <FlatList

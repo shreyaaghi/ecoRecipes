@@ -64,23 +64,20 @@ export default function TabOneScreen() {
   const goToTipsAndTricks = () => {
     router.push('/tipsandtricks');
   }
+  const goToWhySustainability = () => {
+    router.push('/whysustainability');
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>
       <View style={{ backgroundColor: '#4BA9FF', flex: 1 }}>
         <View style={styles.row}>
           <Text style={styles.heading}>Welcome, {username}</Text>
-          <TouchableOpacity style={styles.userImageContainer}>
-            <Image
-              style={styles.userImage}
-              source={require('@/assets/images/userProfile.jpg')}
-            />
-          </TouchableOpacity>
         </View>
         <HomeNavButton title="Recipes" icon="RecipesImg" location="Recipes Button" onPress={goToRecipes}></HomeNavButton>
         <HomeNavButton title="Your Meal Plans" icon="MealPlansImg" location="Meal Plans Button" onPress={goToMealPlans}></HomeNavButton>
         <HomeNavButton title="Tips and Tricks" icon="TipsImg" location="Tips and Tricks Button" onPress={goToTipsAndTricks}></HomeNavButton>
-        <HomeNavButton title="Why Sustainablity?" icon="WhyImg" location="Why Sustainabliity Button"></HomeNavButton>
+        <HomeNavButton title="Why Sustainability?" icon="WhyImg" location="Why Sustainability Button" onPress={goToWhySustainability}></HomeNavButton>
       </View>
     </SafeAreaView>
   );

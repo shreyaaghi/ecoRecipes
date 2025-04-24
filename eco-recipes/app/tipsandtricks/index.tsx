@@ -38,12 +38,6 @@ const TipsAndTricksScreen = () => {
           <Text style={styles.title}>Tips and Tricks!</Text>
           <Text style={styles.subtitle}>Learn how you can make more eco-friendly food choices.</Text>
         </View>
-        <TouchableOpacity style={styles.userImageContainer}>
-          <Image
-            style={styles.userImage}
-            source={require('@/assets/images/userProfile.jpg')}
-          />
-        </TouchableOpacity>
       </View>
       <ScrollView>
         <TipButton
@@ -84,8 +78,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   back: {
-    paddingTop: 7,
-    paddingRight: 5
+    padding: 15,
+    marginTop: 30,
   },
   textHeader: {
     width: '80%'
@@ -96,7 +90,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 20,
     paddingBottom: 25,
-    flex: 1,
+    paddingTop: 60,
   },
   title: {
     fontSize: 32,
