@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Platform } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { useRouter, Link } from 'expo-router';
 import { useNavigation } from 'expo-router';
 import { useEffect } from 'react';
