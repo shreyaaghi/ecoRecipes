@@ -18,7 +18,6 @@ const IngredientInput = ({ index, setIngredients, ingredients }: any) => {
         }));
     }
    
-    // steps, sustainability information, category 
     
     return (
         <View>
