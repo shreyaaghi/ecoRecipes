@@ -1,5 +1,8 @@
 import { Dimensions, StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
+import { useState } from "react";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRouter } from "expo-router";
+import { SelectModal } from './SelectModal';
 
 interface MealPlanRecipe {
     [props: string | number]: any;
@@ -9,18 +12,23 @@ interface MealPlanRecipe {
 }
 
 const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [selectedRecipe, setSelectedRecipe] = useState<any>();
+    const router = useRouter();
+
     const update = (val: string, type: string) => {
-        setRecipes(recipes.map((recipe: MealPlanRecipe, i: number) => {
+        const updatedRecipes = recipes.map((recipe: MealPlanRecipe, i: number) => {
             if (i === index) {
                 recipe[type] = val;
             }
             return recipe;
-        }));
+        });
+        setRecipes(updatedRecipes);
     }
 
     const handleRecipeSearch = () => {
         // open the recipe search modal
-        // TODO: modify existing modal
+        setModalVisible(!modalVisible)
         console.log(`opening recipe search modal`);
     };
 
@@ -59,8 +67,9 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
                     style={styles.deleteButton}
                     onPress={handleDeleteRecipe}
                 >
-                    <FontAwesome name="trash-o" size={18} color="red" />
+                    <FontAwesome name="trash-o" size={18} color="white" />
                 </TouchableOpacity>
+                <SelectModal modalVisible={modalVisible} setModalVisible={setModalVisible} update={update} recipe={recipes[index]}/>
             </View>
         </View>
     )
@@ -82,7 +91,7 @@ const styles = StyleSheet.create({
       },
       timeInput: {
         height: 40,
-        width: width * 0.25,
+        width: width * 0.2,
         borderRadius: 10,
         backgroundColor: "#ffffff",
         color: "black",
@@ -91,12 +100,11 @@ const styles = StyleSheet.create({
       },
       recipeButton: {
         height: 40,
-        flex: 1,
         borderRadius: 10,
+        width: width * 0.25,
         backgroundColor: "#ffffff",
+        alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 15,
-        marginRight: 10,
       },
       recipeButtonText: {
         color: "black",
@@ -104,19 +112,20 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
       },
       editButton: {
-        height: 40,
-        width: 40,
+        height: 30,
+        width: 30,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
+        marginHorizontal: 10
       },
       deleteButton: {
-        height: 40,
-        width: 40,
-        borderRadius: 20,
+        height: 30,
+        width: 30,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'red'
       },
       buttonText: {
         fontSize: 18,

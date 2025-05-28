@@ -20,21 +20,7 @@ interface Recipe {
 export default function CreateMealPlanScreen() {
     const [text, setText] = useState<string>('');
 
-    const [dayRecipes, setDayRecipes] = useState<{[key: string]: Recipe[]}>({
-        '1': [
-            { time: '9:00 AM', recipeName: 'Baked Bean Soup', recipeId: '1' },
-            { time: '12:00 PM', recipeName: 'Potato Casserole', recipeId: '2' }
-        ],
-        '2': [],
-        '3': [
-            { time: '11:00 AM', recipeName: 'Chicken Quinoa Bowl', recipeId: '3' },
-            { time: '4:30 PM', recipeName: 'Spinach Falafel', recipeId: '4' }
-        ],
-        '4': [],
-        '5': [],
-        '6': [],
-        '7': []
-    });
+    const [dayRecipes, setDayRecipes] = useState<{[key: string]: Recipe[]}>({});
 
     const daysOfWeek: DayItem[] = [
         { id: '1', name: 'Monday' },

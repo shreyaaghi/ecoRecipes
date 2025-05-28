@@ -4,11 +4,12 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 import axios from 'axios';
-import { ModalRecipeButton } from "@/components/ModalRecipeButton";
+import { SelectModalRecipeButton } from "./SelectModalRecipeButton";
 
-const SelectModal = ({ modalVisible, setModalVisible }: any) => {
+const SelectModal = ({ modalVisible, setModalVisible, recipe, update }: any) => {
   const [recipeSearch, setRecipeSearch] = useState("");
   const [data, setData] = useState<Record<string, unknown>[]>([]);
+
   const search = async () => {
     try {
       let { data } = await axios.get(`${api_url}/recipes/search/${recipeSearch}`);
@@ -57,9 +58,13 @@ const SelectModal = ({ modalVisible, setModalVisible }: any) => {
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} closeModal={()=>
+              renderItem={({ item }: any) => <SelectModalRecipeButton id={item.id} name={item.title}  closeModal={()=>
                 setModalVisible(!modalVisible)
-              } />}
+              } 
+              setRecipe={()=>{update(item.id, "recipeId"); update(item.title, "recipeName"); console.info(item)}}
+              recipe={item}
+              />
+            }
               keyExtractor={(plan: any) => plan.id}
             ></FlatList>
           </View>
@@ -78,7 +83,6 @@ const styles = StyleSheet.create({
   container: {
     // flex: 1,
     backgroundColor: '#4BA9FF',
-    padding: 20,
   },
   centeredView: {
     flex: 1,
