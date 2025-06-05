@@ -21,7 +21,7 @@ const TipButton = ({ title, subtitle, route }: Record<string, string>) => (
 const TipsAndTricksScreen = () => {
   const router = useRouter();
   const navigateToTip = (tipName: string) => {
-    router.push(`/tipsandtricks/${tipName}`);
+    router.navigate(`/tipsandtricks/${tipName}`);
   };
   const navigation = useNavigation();
   useEffect(() => {

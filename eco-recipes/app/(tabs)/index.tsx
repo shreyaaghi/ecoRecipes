@@ -56,16 +56,16 @@ export default function TabOneScreen() {
   }, [username !== ""]);
 
   const goToMealPlans = () => {
-    router.push('/mealplans');
+    router.navigate('/mealplans');
   };
   const goToRecipes = () => {
-    router.push('/recipes');
+    router.navigate('/recipes');
   };
   const goToTipsAndTricks = () => {
-    router.push('/tipsandtricks');
+    router.navigate('/tipsandtricks');
   }
   const goToWhySustainability = () => {
-    router.push('/whysustainability');
+    router.navigate('/whysustainability');
   }
 
   return (

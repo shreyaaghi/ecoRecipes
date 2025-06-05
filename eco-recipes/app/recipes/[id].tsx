@@ -34,6 +34,7 @@ const Recipe = () => {
     const api_url = process.env.EXPO_PUBLIC_API_URL||"";
 
     useEffect(()=>{
+      console.info(`Recipe id: ${pathname}`);
         const fetchRecipe = async () => {
             try {
                 const { data } = await axios.get(`${api_url}/recipes/${id}`);

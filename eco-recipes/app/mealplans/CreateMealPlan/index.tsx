@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions, FlatList, TextInput, Text, View, ScrollView, Button } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions, FlatList, TextInput, Text, View } from 'react-native';
 import { useEffect, useState } from "react";
 import { useRouter } from 'expo-router';
 import { RecipeRow } from '../components/RecipeRow';
@@ -19,8 +19,70 @@ interface Recipe {
 
 export default function CreateMealPlanScreen() {
     const [text, setText] = useState<string>('');
+    const router = useRouter();
+    const [dayRecipes, setDayRecipes] = useState<{ [key: string]: Recipe[] }>({});
+    const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 
-    const [dayRecipes, setDayRecipes] = useState<{[key: string]: Recipe[]}>({});
+    const createMealPlan = async () => {
+        // checks: at least one recipe
+        if (!text) {
+            Alert.alert("Error", "enter a meal plan name")
+            return;
+        }
+
+        const hasRecipes = Object.values(dayRecipes).some(recipes => recipes.length > 0);
+        if (!hasRecipes) {
+            Alert.alert("Error", "please add at least one recipe to your meal plan");
+            return;
+        }
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) {
+                // reroute, send em home!
+                Alert.alert("Error", "please log in again");
+                return;
+            }
+            const mealPlanData = {
+                name: text,
+                days: Object.keys(dayRecipes).map(dayId => {
+                    const dayName = daysOfWeek.find(day => day.id === dayId)?.name;
+                    return {
+                        dayId: dayId,
+                        dayName: dayName,
+                        recipes: dayRecipes[dayId].filter(recipe =>
+                            recipe.recipeName && recipe.time // Only include completed recipes
+                        )
+                    };
+                }).filter(day => day.recipes.length > 0) // only include days w/ recipes
+            };
+
+            console.log("Sending meal plan data:", mealPlanData);
+
+            const response = await axios.post(`${api_url}/meal-plans/create`, mealPlanData, {headers: {"x-access-token": token, "Content-Type": "application/json"}});
+
+            console.log("Meal plan created successfully:", response.data);
+
+            Alert.alert(
+                "Success",
+                "Meal plan created successfully!",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            router.push('/mealplans');
+                        }
+                    }
+                ]
+            );
+
+
+        } catch (error) {
+            console.error("Error creating meal plan:", error);
+            Alert.alert("Error", "Failed to create meal plan. Please try again.");
+        }
+
+    };
 
     const daysOfWeek: DayItem[] = [
         { id: '1', name: 'Monday' },
@@ -40,15 +102,6 @@ export default function CreateMealPlanScreen() {
         });
     };
 
-    const deleteRecipe = (dayId: string, index: number) => {
-        const newRecipes = [...dayRecipes[dayId]];
-        newRecipes.splice(index, 1);
-        setDayRecipes({
-            ...dayRecipes,
-            [dayId]: newRecipes
-        });
-    };
-
     const updateDayRecipes = (dayId: string, updatedRecipes: Recipe[]) => {
         setDayRecipes({
             ...dayRecipes,
@@ -56,10 +109,9 @@ export default function CreateMealPlanScreen() {
         });
     };
 
-
     const renderDay = ({ item }: { item: DayItem }) => {
         const recipes = dayRecipes[item.id] || [];
-        
+
         return (
             <View style={styles.dayContainer}>
                 <View style={styles.dayHeader}>
@@ -116,7 +168,7 @@ export default function CreateMealPlanScreen() {
                     showsVerticalScrollIndicator={true}
                 />
 
-                <TouchableOpacity style={styles.createButton}>
+                <TouchableOpacity style={styles.createButton} onPress={createMealPlan}>
                     <Text style={styles.createButtonText}>Create</Text>
                 </TouchableOpacity>
             </View>

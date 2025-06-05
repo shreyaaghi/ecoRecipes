@@ -6,7 +6,7 @@ import { useRouter, Link } from 'expo-router';
 const SeasonalEatingScreen = () => {
   const router = useRouter();
 //   const navigateToTip = (tipName: string) => {
-//     router.push(`/tipsandtricks/${tipName}`);
+//     router.navigate(`/tipsandtricks/${tipName}`);
 //   };
 
   return (

@@ -43,25 +43,39 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
         <View>
             <View style={styles.container}>
                 <TextInput
+                // implement check to make sure it's a valid time
                     style={styles.timeInput}
                     placeholder="Time"
                     value={recipes[index].time}
                     onChangeText={(text => update(text, "time"))}
                     clearButtonMode="while-editing"
                 />
-                <TouchableOpacity
-                    style={styles.recipeButton}
-                    onPress={handleRecipeSearch}
-                >
-                    <Text style={styles.recipeButtonText}>
-                        {recipes[index].recipeName || "Click to search..."}
-                    </Text>
-                </TouchableOpacity>
+                {
+                    recipes[index].recipeName ? (
+
+                        <TouchableOpacity
+                            style={styles.recipeButton}
+                            onPress={() => router.navigate(`/recipes/${recipes[index].recipeId}`)}
+                        >
+                            <Text style={styles.recipeButtonText}>
+                                {recipes[index].recipeName}
+                            </Text>
+                        </TouchableOpacity>
+                    ) : (
+
+                        <TouchableOpacity
+                            style={styles.recipeButton}
+                            onPress={handleRecipeSearch}
+                        >
+                            <Text style={styles.recipeButtonText}>Click to search...</Text>
+                        </TouchableOpacity>
+                    )
+                }
                 <TouchableOpacity
                     style={styles.editButton}
                     onPress={handleRecipeSearch}
                 >
-                    <FontAwesome name="pencil" size={18} color="white"/>
+                    <FontAwesome name="pencil" size={18} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.deleteButton}
@@ -69,7 +83,7 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
                 >
                     <FontAwesome name="trash-o" size={18} color="white" />
                 </TouchableOpacity>
-                <SelectModal modalVisible={modalVisible} setModalVisible={setModalVisible} update={update} recipe={recipes[index]}/>
+                <SelectModal modalVisible={modalVisible} setModalVisible={setModalVisible} update={update} recipe={recipes[index]} />
             </View>
         </View>
     )
@@ -88,8 +102,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         marginVertical: 8,
         justifyContent: "space-between"
-      },
-      timeInput: {
+    },
+    timeInput: {
         height: 40,
         width: width * 0.2,
         borderRadius: 10,
@@ -97,37 +111,37 @@ const styles = StyleSheet.create({
         color: "black",
         paddingHorizontal: 10,
         marginRight: 10,
-      },
-      recipeButton: {
+    },
+    recipeButton: {
         height: 40,
         borderRadius: 10,
         width: width * 0.25,
         backgroundColor: "#ffffff",
         alignItems: 'center',
         justifyContent: 'center',
-      },
-      recipeButtonText: {
+    },
+    recipeButtonText: {
         color: "black",
         fontSize: 16,
         textDecorationLine: 'underline',
-      },
-      editButton: {
+    },
+    editButton: {
         height: 30,
         width: 30,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 10
-      },
-      deleteButton: {
+    },
+    deleteButton: {
         height: 30,
         width: 30,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'red'
-      },
-      buttonText: {
+    },
+    buttonText: {
         fontSize: 18,
-      },
+    },
 });  
