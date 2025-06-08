@@ -24,25 +24,30 @@ export default function CreateMealPlanScreen() {
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 
     const createMealPlan = async () => {
-        // checks: at least one recipe
         if (!text) {
-            Alert.alert("Error", "enter a meal plan name")
+            Alert.alert("error", "enter a meal plan name");
             return;
         }
-
-        const hasRecipes = Object.values(dayRecipes).some(recipes => recipes.length > 0);
-        if (!hasRecipes) {
-            Alert.alert("Error", "please add at least one recipe to your meal plan");
+        
+        const hasMissingRecipes = Object.values(dayRecipes).some(recipes => recipes.length === 0);
+        if (hasMissingRecipes) {
+            Alert.alert("error", "please add at least one recipe to your meal plan");
             return;
         }
-
+        
+        const hasMissingRecipeNames = Object.values(dayRecipes).some(recipes => recipes.some(recipe => recipe.recipeName === undefined));
+        if (hasMissingRecipeNames) {
+            Alert.alert("error", "you have unselected recipes");
+            return;
+        }
+        
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) {
-                // reroute, send em home!
-                Alert.alert("Error", "please log in again");
+                Alert.alert("error", "please log in again");
                 return;
             }
+            
             const mealPlanData = {
                 name: text,
                 days: Object.keys(dayRecipes).map(dayId => {
@@ -51,37 +56,34 @@ export default function CreateMealPlanScreen() {
                         dayId: dayId,
                         dayName: dayName,
                         recipes: dayRecipes[dayId].filter(recipe =>
-                            recipe.recipeName && recipe.time // Only include completed recipes
+                            recipe.recipeName && recipe.time // only include completed recipes
                         )
                     };
                 }).filter(day => day.recipes.length > 0) // only include days w/ recipes
             };
-
-            console.log("Sending meal plan data:", mealPlanData);
-
-            const response = await axios.post(`${api_url}/meal-plans/create`, mealPlanData, {headers: {"x-access-token": token, "Content-Type": "application/json"}});
-
-            console.log("Meal plan created successfully:", response.data);
-
+            
+            console.log("sending meal plan data:", mealPlanData);
+            
+            const response = await axios.post(`${api_url}/mealplans/`, mealPlanData, {headers: {"x-access-token": token}});
+            console.log("meal plan created successfully:", response.data);
+            
             Alert.alert(
-                "Success",
-                "Meal plan created successfully!",
+                "success",
+                "meal plan created successfully!",
                 [
                     {
-                        text: "OK",
+                        text: "OK", 
                         onPress: () => {
                             router.push('/mealplans');
                         }
                     }
                 ]
             );
-
-
+            
         } catch (error) {
             console.error("Error creating meal plan:", error);
             Alert.alert("Error", "Failed to create meal plan. Please try again.");
         }
-
     };
 
     const daysOfWeek: DayItem[] = [

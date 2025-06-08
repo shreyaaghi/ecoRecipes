@@ -1,50 +1,46 @@
 import { Request, Response, Router } from "express";
-import { createPlan, getPlan, updatePlan, deletePlan } from "../controllers";
-const plansRouter = () => {
+import { createIncludedPlan, getIncludedPlan, updateIncludedPlan, deleteIncludedPlan } from "../controllers";
+
+const includedPlansRouter = () => {
     const router = Router();
-    router.get("/", (req: Request, res: Response) => res.send("plans"));
-
+    
+    router.get("/", (req: Request, res: Response) => res.send("included plans"));
+    
     router.post("/", async (req: Request, res: Response) => {
-        const { days, times }: {days:string, times:string} = req.body;
-        return res.send(await createPlan(days, times));
-
+        const { meal_plan_id, recipe_plan_id }: { meal_plan_id: number, recipe_plan_id: number } = req.body;
+        const result = await createIncludedPlan(meal_plan_id, recipe_plan_id);
+        return res.status(result.status).json(result);
     });
-
+    
     router.get("/:id", async (req: Request, res: Response) => {
         const id: number = parseInt(req.params.id);
-
-        // check if id is number
         if (isNaN(id)) {
-          return res.status(400).send('invalid plan ID');
+            return res.status(400).send('invalid included plan ID');
         }
-
-        return res.send(await getPlan(id));
+        const result = await getIncludedPlan(id);
+        return res.status(result.status).json(result);
     });
-
+    
     router.put("/:id", async (req: Request, res: Response) => {
         const id: number = parseInt(req.params.id);
-
-        // check if id is number
         if (isNaN(id)) {
-          return res.status(400).send('invalid plan ID');
+            return res.status(400).send('invalid included plan ID');
         }
-
-        const { days, times }: {days:string, times:string} = req.body;
-        
-        return res.send(await updatePlan(id, days, times));
+        const { meal_plan_id, recipe_plan_id }: { meal_plan_id: number, recipe_plan_id: number } = req.body;
+        const result = await updateIncludedPlan(id, meal_plan_id, recipe_plan_id);
+        return res.status(result.status).json(result);
     });
-
+    
     router.delete("/:id", async (req: Request, res: Response) => {
         const id: number = parseInt(req.params.id);
-
         if (isNaN(id)) {
-          return res.status(400).send('invalid plan ID');
+            return res.status(400).send('invalid included plan ID');
         }
-
-        return res.send(await deletePlan(id));
+        const result = await deleteIncludedPlan(id);
+        return res.status(result.status).json(result);
     });
     
     return router;
 };
 
-export default plansRouter;
+export default includedPlansRouter;

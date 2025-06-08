@@ -20,6 +20,8 @@ export default function TabOneScreen() {
         if (token) {
           const decoded = jwtDecode(token);
           const currentTime = Math.floor(Date.now() / 1000);
+          console.log(Date.now())
+          console.log(decoded.exp)
 
           if (decoded.exp && typeof decoded.exp == 'number') {
             const isValid = decoded.exp > currentTime

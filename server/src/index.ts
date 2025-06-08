@@ -8,7 +8,7 @@ import authRouter from "./routes/auth"
 import recipesRouter from "./routes/recipes"
 import ingredientsRouter from "./routes/ingredients"
 import recipeIngredientsRouter from "./routes/recipeIngredients"
-import plansRouter from "./routes/plans"
+import includedPlansRouter from "./routes/plans"
 import mealPlansRouter from "./routes/mealPlans"
 import recipePlansRouter from "./routes/recipePlans"
 import usersRouter from "./routes/users"
@@ -27,8 +27,8 @@ app.use("/auth", authRouter());
 app.use("/recipes", recipesRouter());
 app.use("/ingredients", ingredientsRouter());
 app.use("/recipe-ingredients", recipeIngredientsRouter());
-app.use("/plans", plansRouter());
-app.use("/meal-plans", mealPlansRouter());
+app.use("/plans", includedPlansRouter());
+app.use("/mealplans", mealPlansRouter());
 app.use("/recipe-plans", recipePlansRouter());
 app.use("/users", usersRouter());
 

@@ -1,88 +1,89 @@
 import { supabase } from "../util/supabase";
-import { createPlan } from "./plans";
+import { createIncludedPlan } from "./plans";
 import { createRecipePlan } from "./recipePlans"
 
-const createMealPlan = async (user_id:string, plan_id:number) => {
-    const {data, error} = await supabase.from("meal_plans").insert([{
-        user_id: user_id,
-        plan: plan_id
-    }]).select();
-    if (error) {
-        return {
-            status:500,
-            error:error.message
-        }
-    }
+const createMealPlan = async (user_id: string, name: string) => {
+  const { data, error } = await supabase.from("meal_plans").insert({
+    user_id: user_id,
+    name: name
+  }).select();
+
+  if (error) {
     return {
-        status:200,
-        data:data
+      status: 500,
+      error: error.message
     }
+  }
+  return {
+    status: 200,
+    data: data
+  }
 };
 
-const getMealPlan = async (id:number) => {
-    const { data, error } = await supabase
+const getMealPlan = async (id: number) => {
+  const { data, error } = await supabase
     .from('meal_plans').select('*').eq('id', id)
 
-    if (error) {
-        return {
-          status: 500,
-          error: error.message,
-        };
-    }
-      
-    if (!data || data.length == 0) {
-        return {
-          status: 404,
-          error: 'meal plan not found',
-        };
-    }
-    
+  if (error) {
     return {
-        status: 200,
-        data: data[0],
+      status: 500,
+      error: error.message,
     };
+  }
+
+  if (!data || data.length == 0) {
+    return {
+      status: 404,
+      error: 'meal plan not found',
+    };
+  }
+
+  return {
+    status: 200,
+    data: data[0],
+  };
 };
 
-const deleteMealPlan = async (id:number) => {
-    const {data, error} = await supabase.from("meal_plans").delete().eq('id', id).select();
-    if (error) {
-        return {
-          status: 500,
-          error: error.message,
-        };
-      }
-      
-      if (!data || data.length == 0) {
-        return {
-          status: 404,
-          error: 'meal plan not found',
-        };
-      }
-      return {
-        status: 200,
-        message: 'meal plan deleted',
-      }
+const deleteMealPlan = async (id: number) => {
+  const { data, error } = await supabase.from("meal_plans").delete().eq('id', id).select();
+  if (error) {
+    return {
+      status: 500,
+      error: error.message,
+    };
+  }
+
+  if (!data || data.length == 0) {
+    return {
+      status: 404,
+      error: 'meal plan not found',
+    };
+  }
+  return {
+    status: 200,
+    message: 'meal plan deleted',
+  }
 };
 
-const getUserMealPlans = async (user_id:string) => {
-    const {data, error} = await supabase.from("meal_plans").select('*').eq('user_id', user_id);
-    if (error) {
-        return {
-          status: 500,
-          error: error.message,
-        };
-      }
-      
-      if (!data || data.length == 0) {
-        return {
-          status: 404,
-          error: 'no meal plans found under user',
-        };
-      }
-      return {
-        status: 200,
-        data: data
-      }
+const getUserMealPlans = async (user_id: string) => {
+  const { data, error } = await supabase.from("meal_plans").select('*').eq('user_id', user_id);
+  if (error) {
+    return {
+      status: 500,
+      error: error.message,
+    };
+  }
+
+  if (!data || data.length == 0) {
+    return {
+      status: 404,
+      error: 'no meal plans found under user',
+    };
+  }
+  return {
+    status: 200,
+    data: data
+  }
 };
 
 const getMealPlanWithRecipes = async (id: number) => {
@@ -90,7 +91,7 @@ const getMealPlanWithRecipes = async (id: number) => {
     .from('meal_plans')
     .select(`*, plans:plan(*, recipe_plans(*, recipes(*)))`)
     .eq('id', id);
-  
+
   if (error) {
     return {
       status: 500,
@@ -109,43 +110,54 @@ const getMealPlanWithRecipes = async (id: number) => {
   };
 };
 
-const createFullMealPlan = async (user_id: string, name: string, days: any[]) => {
-  // create plan with days and times
-  const daysString = days.map(day => day.dayName).join(',');
-  const timesString = days.map(day => day.recipes.map((recipe: any) => recipe.time).join(';')).join(',');
+const createCompleteMealPlan = async (user_id: string, name: string, days: any[]) => {
+  try {
+    const recipePlanIds = [];
 
-  const planResult = await createPlan(daysString, timesString);
+    for (const day of days) {
+      for (const recipe of day.recipes) {
+        if (recipe.recipeId && recipe.time) {
 
-  const plan_id = planResult.data[0].id;
-  
-  const mealPlanResult = await createMealPlan(user_id, plan_id);
+          const recipePlanResult = await createRecipePlan(
+            parseInt(recipe.recipeId),
+            day.dayName,
+            recipe.time
+          );
 
-  const recipePlanPromises = [];
-        
-        for (const day of days) {
-            for (const recipe of day.recipes) {
-                if (recipe.recipeId) {
-                    recipePlanPromises.push(
-                        createRecipePlan(parseInt(recipe.recipeId), plan_id)
-                    );
-                }
-            }
+          if (recipePlanResult.status !== 200) {
+            return { status: 500, error: "Failed to create recipe plan" };
+          }
+
+          recipePlanIds.push(recipePlanResult.data[0].id);
         }
-        
-  const recipePlanResults = await Promise.all(recipePlanPromises);
-
-  return {
-    success: true,
-    message: "meal plan created",
-    data: {
-        meal_plan_id: mealPlanResult.data[0].id,
-        plan_id: plan_id,
-        name: name,
-        total_recipes: recipePlanPromises.length
+      }
     }
+
+    const mealPlanResult = await createMealPlan(user_id, name); 
+
+    if (mealPlanResult.status !== 200) {
+      return { status: 500, error: "failed to create meal plan" };
+    }
+
+    const meal_plan_id = mealPlanResult.data[0].id;
+
+    for (const recipePlanId of recipePlanIds) {
+      const includedPlanResult = await createIncludedPlan(meal_plan_id, recipePlanId);
+      if (includedPlanResult.status !== 200) {
+        return { status: 500, error: "failed to create included plan" };
+      }
+    }
+
+    return {
+      status: 200,
+      data: mealPlanResult.data
+    };
+
+  } catch (error) {
+    console.error("Error in createCompleteMealPlan:", error);
+    return { status: 500, error: error.message };
   }
+};
 
 
-}
-
-export { createMealPlan, getMealPlan, deleteMealPlan, getUserMealPlans, getMealPlanWithRecipes, createFullMealPlan };
+export { createMealPlan, getMealPlan, deleteMealPlan, getUserMealPlans, getMealPlanWithRecipes, createCompleteMealPlan };

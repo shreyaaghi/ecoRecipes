@@ -36,7 +36,7 @@ export default function Login() {
         
             if (loginData.data) {
                 await AsyncStorage.setItem('userToken', loginData.data);
-                // console.info(`Token: ${await AsyncStorage.getItem('userToken')}`);
+                console.info(`Token: ${await AsyncStorage.getItem('userToken')}`);
                 router.replace('/(tabs)');
             } else {
                 setError('no token');

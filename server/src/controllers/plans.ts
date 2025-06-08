@@ -1,90 +1,90 @@
 import { supabase } from "../util/supabase";
 
-const createPlan = async (days:string, times:string) => {
-    const {data, error} = await supabase.from("plans").insert([{
-        days: days,
-        times: times
-    }]).select();
+const createIncludedPlan = async (meal_plan_id: number, recipe_plan_id: number) => {
+    const {data, error} = await supabase.from("included_plans").insert({
+        meal_plan_id: meal_plan_id,
+        recipe_plan_id: recipe_plan_id
+    }).select();
+    
     if (error) {
+        console.log("createIncludedPlan error:", error);
         return {
-            status:500,
-            error:error.message
+            status: 500,
+            error: error.message
         }
     }
     return {
-        status:200,
-        data:data
+        status: 200,
+        data: data
     }
 };
 
-const getPlan = async (id:number) => {
+const getIncludedPlan = async (id: number) => {
     const { data, error } = await supabase
-    .from('plans').select('*').eq('id', id)
-
+        .from('included_plans').select('*').eq('id', id); 
+    
     if (error) {
         return {
-          status: 500,
-          error: error.message,
+            status: 500,
+            error: error.message,
         };
     }
-      
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'plan not found',
+            status: 404,
+            error: 'included plan not found',
         };
     }
-    
     return {
         status: 200,
         data: data,
     };
 };
 
-const updatePlan = async (id:number, days:string, times:string) => {
-    const {data, error} = await supabase.from("plans").update([{
-        days: days,
-        times: times,
-    }]).eq('id', id)
+const updateIncludedPlan = async (id: number, meal_plan_id: number, recipe_plan_id: number) => {
+    const {data, error} = await supabase.from("included_plans").update({
+        meal_plan_id: meal_plan_id,
+        recipe_plan_id: recipe_plan_id,
+    }).eq('id', id)
     .select();
-
+    
     if (error) {
         return {
-            status:500,
-            error:error.message
+            status: 500,
+            error: error.message
         }
     }
     if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'plan not found',
+            status: 404,
+            error: 'included plan not found', 
         };
     }
     return {
-        status:200,
-        data:data
+        status: 200,
+        data: data
     }
 };
 
-const deletePlan = async (id:number) => {
-    const {data, error} = await supabase.from("plans").delete().eq('id', id).select();
+const deleteIncludedPlan = async (id: number) => {
+    const {data, error} = await supabase.from("included_plans").delete().eq('id', id).select();
+    
     if (error) {
         return {
-          status: 500,
-          error: error.message,
+            status: 500,
+            error: error.message,
         };
-      }
-      
-      if (!data || data.length == 0) {
+    }
+    if (!data || data.length == 0) {
         return {
-          status: 404,
-          error: 'plan not found',
+            status: 404,
+            error: 'included plan not found', 
         };
-      }
-      return {
+    }
+    return {
         status: 200,
-        message: 'plan deleted',
-      }
+        message: 'included plan deleted', 
+    }
 };
 
-export { createPlan, getPlan, updatePlan, deletePlan };
+export { createIncludedPlan, getIncludedPlan, updateIncludedPlan, deleteIncludedPlan };
