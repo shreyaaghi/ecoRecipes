@@ -12,11 +12,16 @@ const WhySustainabilityScreen = () => {
         navigation.setOptions({ headerShown: false })
     }, []);
 
+    const handleBack = () => {
+        router.back();
+    };
+
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-                    <AntDesign name="left" size={24} color="white" />
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                    <Text style={styles.backButtonText}>Back</Text>
                 </TouchableOpacity>
                 <View style={styles.textHeader}>
                     <Text style={styles.title}>Why Sustainability?</Text>
@@ -56,11 +61,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     scrollContent: {
-        paddingBottom: 40, 
-        paddingTop: 10,    
+        paddingBottom: 40,
+        paddingTop: 10,
     },
-    back: {
-        marginTop: 30,
+    backButton: {
+        backgroundColor: 'white',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 15,
+    },
+    backButtonText: {
+        color: '#4BA9FF',
+        fontWeight: 'bold',
+        fontSize: 14,
     },
     textHeader: {
         width: '80%'

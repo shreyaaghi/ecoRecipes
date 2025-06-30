@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StyleSheet, SafeAreaView, Dimensions, Touchable
 import { usePathname, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import axios from "axios";
+import { useNavigation } from 'expo-router';
 
 interface Recipe {
     id: number;
@@ -26,11 +27,14 @@ const MealPlanView = () => {
     let id = pathname.substring(pathname.lastIndexOf("/") + 1);
     const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
+    const navigation = useNavigation();
+    useEffect(() => {
+        navigation.setOptions({ headerShown: false })
+    }, []);
 
     useEffect(() => {
         const fetchMealPlan = async () => {
             try {
-                // You'll need to create this endpoint that returns the meal plan with recipes
                 const { data } = await axios.get(`${api_url}/mealplans/${id}/recipes`);
                 setMealPlan(data.data);
             } catch (err) {
@@ -38,20 +42,21 @@ const MealPlanView = () => {
             }
         };
 
-        fetchMealPlan();
+        if (id && id !== 'mealplans') { 
+            fetchMealPlan();
+        }
     }, [id]);
 
     const handleRecipePress = (recipeId: number) => {
         router.push(`/recipes/${recipeId}`);
     };
 
-    const handleEdit = () => {
-        // TODO: Navigate to edit meal plan screen
-        console.log("Edit meal plan");
-    };
-
     const handleBack = () => {
         router.back();
+    };
+
+    const handleEdit = () => {
+        router.push(`/mealplans/EditMealPlan?id=${mealPlan?.id}`);
     };
 
     if (!mealPlan) {
@@ -63,6 +68,7 @@ const MealPlanView = () => {
             </SafeAreaView>
         );
     }
+
 
     const renderDay = (day: Day, index: number) => (
         <View key={index} style={styles.dayContainer}>
@@ -82,7 +88,7 @@ const MealPlanView = () => {
                 ))
             ) : (
                 <Text style={styles.emptyText}>
-                    No recipes yet! (Click the + in the top right corner to add one)
+                    No recipes yet! (Click "edit" in the top right corner to add one)
                 </Text>
             )}
         </View>
@@ -101,10 +107,8 @@ const MealPlanView = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Meal Plan Name */}
             <Text style={styles.mealPlanTitle}>{mealPlan.name}</Text>
 
-            {/* Days and Recipes */}
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
                 {mealPlan.days.map((day, index) => renderDay(day, index))}
             </ScrollView>

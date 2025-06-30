@@ -4,7 +4,7 @@ import { useRouter, Link } from 'expo-router';
 import { useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 
-const SeasonalEatingScreen = () => {
+const PlantBasedEatingScreen = () => {
   const router = useRouter();
   const navigation = useNavigation();
   useEffect(() => {
@@ -22,7 +22,7 @@ const SeasonalEatingScreen = () => {
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <View>
-          <Text style={styles.title}>Seasonal Eating</Text>
+          <Text style={styles.title}>Plant Based Eating</Text>
         </View>
       </View>
     </View>
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 10,
-    marginLeft: 30,
+    marginLeft: 20,
   },
 });
 
-export default SeasonalEatingScreen;
+export default PlantBasedEatingScreen;

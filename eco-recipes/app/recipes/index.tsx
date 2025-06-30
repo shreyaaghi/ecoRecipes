@@ -7,6 +7,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchModal } from './components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useRouter } from 'expo-router';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 // import { AuthNavigationProp } from '../NavigationTypes';
 
 const RecipesScreen: React.FC = () => {
@@ -14,6 +16,7 @@ const RecipesScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const api_url = process.env.EXPO_PUBLIC_API_URL || "";
   const navigation = useNavigation();
+  const router = useRouter()
   useEffect(() => {
     navigation.setOptions({ headerShown: false })
   }, []);
@@ -28,6 +31,11 @@ const RecipesScreen: React.FC = () => {
       }
     )();
   }, []);
+
+  const handleBack = () => {
+    router.back();
+  };
+
   // data?.length > 0 in brackets above?
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>

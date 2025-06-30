@@ -28,13 +28,17 @@ const TipsAndTricksScreen = () => {
     navigation.setOptions({ headerShown: false })
   }, []);
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-          <AntDesign name="left" size={24} color="white" />
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
-        <View style = {styles.textHeader}>
+        <View style={styles.textHeader}>
           <Text style={styles.title}>Tips and Tricks!</Text>
           <Text style={styles.subtitle}>Learn how you can make more eco-friendly food choices.</Text>
         </View>
@@ -44,25 +48,21 @@ const TipsAndTricksScreen = () => {
           title="Seasonal Eating"
           subtitle="Why eat seasonally?"
           route="tipsandtricks/seasonal-eating"
-        // onPress={() => navigateToTip('seasonal-eating')}
         />
         <TipButton
           title="Local Sourcing"
           subtitle="Discover the benefits of purchasing locally."
           route="tipsandtricks/local-sourcing"
-        // onPress={() => navigateToTip('local-sourcing')}
         />
         <TipButton
           title="Plant-Based Eating"
           subtitle="The best way to lower your carbon footprint."
           route="tipsandtricks/plant-based-eating"
-        // onPress={() => navigateToTip('plant-based-eating')}
         />
         <TipButton
           title="Grow It Yourself"
           subtitle="Know what goes into your own meals."
           route="tipsandtricks/grow-it-yourself"
-        // onPress={() => navigateToTip('grow-it-yourself')}
         />
       </ScrollView>
     </View>
@@ -77,9 +77,16 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingTop: 10,
   },
-  back: {
-    padding: 15,
-    marginTop: 30,
+  backButton: {
+    backgroundColor: 'white',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 15,
+  },
+  backButtonText: {
+    color: '#4BA9FF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   textHeader: {
     width: '80%'

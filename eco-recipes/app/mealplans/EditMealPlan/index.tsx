@@ -1,9 +1,8 @@
 import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions, FlatList, TextInput, Text, View } from 'react-native';
 import { useEffect, useState } from "react";
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { RecipeRow } from '../components/RecipeRow';
 import { useNavigation } from 'expo-router';
-import { SelectModal } from '../components/SelectModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -18,9 +17,10 @@ interface Recipe {
     recipeId: string
 }
 
-export default function CreateMealPlanScreen() {
+export default function EditMealPlanScreen() {
     const [text, setText] = useState<string>('');
     const router = useRouter();
+    const { id } = useLocalSearchParams();
     const [dayRecipes, setDayRecipes] = useState<{ [key: string]: Recipe[] }>({});
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
     const navigation = useNavigation();
@@ -28,28 +28,78 @@ export default function CreateMealPlanScreen() {
         navigation.setOptions({ headerShown: false })
     }, []);
 
-    const createMealPlan = async () => {
-        if (!text) {
-            Alert.alert("error", "enter a meal plan name");
+    const daysOfWeek: DayItem[] = [
+        { id: '1', name: 'Monday' },
+        { id: '2', name: 'Tuesday' },
+        { id: '3', name: 'Wednesday' },
+        { id: '4', name: 'Thursday' },
+        { id: '5', name: 'Friday' },
+        { id: '6', name: 'Saturday' },
+        { id: '7', name: 'Sunday' }
+    ];
+    useEffect(() => {
+        const fetchMealPlan = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                if (!token) {
+                    Alert.alert("Error", "Please log in again");
+                    router.push('/auth/login');
+                    return;
+                }
+
+                const { data: result } = await axios.get(`${api_url}/mealplans/${id}/recipes`, {
+                    headers: { "x-access-token": token }
+                });
+
+                const data = result.data;
+
+                setText(data.name || '');
+
+                const formattedDayRecipes: { [key: string]: Recipe[] } = {};
+
+                if (data.days && Array.isArray(data.days)) {
+                    data.days.forEach((day: any) => {
+                        const dayItem = daysOfWeek.find(d => d.name === day.dayName);
+                        if (dayItem && day.recipes) {
+                            formattedDayRecipes[dayItem.id] = day.recipes.map((recipe: any) => ({
+                                time: recipe.time || '',
+                                recipeName: recipe.title || '',
+                                recipeId: recipe.id ? recipe.id.toString() : ''
+                            }));
+                        }
+                    });
+                }
+
+                setDayRecipes(formattedDayRecipes);
+
+            } catch (error) {
+                console.error("Error fetching meal plan:", error);
+                Alert.alert("Error", "Failed to load meal plan data");
+            }
+        };
+
+        if (id && id !== 'edit') {
+            fetchMealPlan();
+        }
+    }, [id]);
+
+
+    const updateMealPlan = async () => {
+        if (!text.trim()) {
+            Alert.alert("Error", "Enter a meal plan name");
             return;
         }
 
-        const hasMissingRecipes = Object.values(dayRecipes).some(recipes => recipes.length === 0);
-        if (hasMissingRecipes) {
-            Alert.alert("error", "please add at least one recipe to your meal plan");
-            return;
-        }
-
-        const hasMissingRecipeNames = Object.values(dayRecipes).some(recipes => recipes.some(recipe => recipe.recipeName === undefined));
-        if (hasMissingRecipeNames) {
-            Alert.alert("error", "you have unselected recipes");
+        const hasRecipes = Object.values(dayRecipes).some(recipes => recipes.length > 0);
+        if (!hasRecipes) {
+            Alert.alert("Error", "Please add at least one recipe to your meal plan");
             return;
         }
 
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) {
-                Alert.alert("error", "please log in again");
+                Alert.alert("Error", "Please log in again");
                 return;
             }
 
@@ -61,42 +111,34 @@ export default function CreateMealPlanScreen() {
                         dayId: dayId,
                         dayName: dayName,
                         recipes: dayRecipes[dayId].filter(recipe =>
-                            recipe.recipeName && recipe.time // only include completed recipes
+                            recipe.recipeName && recipe.time && recipe.recipeId // only include completed recipes
                         )
                     };
-                }).filter(day => day.recipes.length > 0) // only include days w/ recipes
+                }).filter(day => day.recipes.length > 0) // only include days with recipes
             };
 
-            const response = await axios.post(`${api_url}/mealplans/`, mealPlanData, { headers: { "x-access-token": token } });
+            const response = await axios.put(`${api_url}/mealplans/${id}`, mealPlanData, {
+                headers: { "x-access-token": token }
+            });
 
             Alert.alert(
-                "success",
-                "meal plan created successfully!",
+                "Success",
+                "Meal plan updated successfully!",
                 [
                     {
                         text: "OK",
                         onPress: () => {
-                            router.push('/mealplans');
+                            router.back(); 
                         }
                     }
                 ]
             );
 
         } catch (error) {
-            console.error("Error creating meal plan:", error);
-            Alert.alert("Error", "Failed to create meal plan. Please try again.");
+            console.error("Error updating meal plan:", error);
+            Alert.alert("Error", "Failed to update meal plan. Please try again.");
         }
     };
-
-    const daysOfWeek: DayItem[] = [
-        { id: '1', name: 'Monday' },
-        { id: '2', name: 'Tuesday' },
-        { id: '3', name: 'Wednesday' },
-        { id: '4', name: 'Thursday' },
-        { id: '5', name: 'Friday' },
-        { id: '6', name: 'Saturday' },
-        { id: '7', name: 'Sunday' }
-    ];
 
     const addRecipe = (dayId: string) => {
         const newRecipes = [...(dayRecipes[dayId] || []), { time: '', recipeName: '', recipeId: '' }];
@@ -111,6 +153,10 @@ export default function CreateMealPlanScreen() {
             ...dayRecipes,
             [dayId]: updatedRecipes
         });
+    };
+
+    const handleBack = () => {
+        router.back();
     };
 
     const renderDay = ({ item }: { item: DayItem }) => {
@@ -146,19 +192,15 @@ export default function CreateMealPlanScreen() {
         );
     };
 
-    const handleBack = () => {
-        router.back();
-    };
-
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>
+        <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                         <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                     <View style={styles.textHeader}>
-                        <Text style={styles.title}>Create Meal Plan</Text>
+                        <Text style={styles.title}>Edit Meal Plan</Text>
                     </View>
                 </View>
 
@@ -177,10 +219,11 @@ export default function CreateMealPlanScreen() {
                     renderItem={renderDay}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={true}
+                    style={styles.flatList}
                 />
 
-                <TouchableOpacity style={styles.createButton} onPress={createMealPlan}>
-                    <Text style={styles.createButtonText}>Create</Text>
+                <TouchableOpacity style={styles.createButton} onPress={updateMealPlan}>
+                    <Text style={styles.createButtonText}>Update</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -191,12 +234,22 @@ const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#4BA9FF",
+    },
     container: {
         flex: 1,
         backgroundColor: '#4BA9FF',
         paddingHorizontal: 20,
         paddingBottom: 20,
         paddingTop: 10,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingBottom: 20,
     },
     backButton: {
         backgroundColor: 'white',
@@ -210,16 +263,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     textHeader: {
-        width: '80%'
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingBottom: 20,
+        flex: 1,
+        alignItems: 'center',
+        marginRight: 60, // Offset for back button to center title
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: 'bold',
         color: 'white',
     },
@@ -241,6 +290,9 @@ const styles = StyleSheet.create({
         color: "#ffffff",
         fontWeight: "bold",
         marginBottom: 5,
+    },
+    flatList: {
+        flex: 1,
     },
     dayContainer: {
         backgroundColor: '#41BD4B',
@@ -265,6 +317,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     addButtonText: {
         fontSize: 20,
@@ -295,7 +348,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#4BA9FF',
     },
-    footerStyle: {
-        marginTop: 15,
-    }
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
 });  

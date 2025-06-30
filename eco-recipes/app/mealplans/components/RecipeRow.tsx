@@ -36,7 +36,6 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
         // remove the recipe from the array
         const updatedRecipes = recipes.filter((_: MealPlanRecipe, i: number) => i !== index);
         setRecipes(updatedRecipes);
-        console.log(`deleting recipe ${index}`);
     };
 
     return (

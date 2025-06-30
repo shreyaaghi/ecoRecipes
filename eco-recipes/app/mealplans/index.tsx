@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, FlatList, SafeAreaView } from 'react-native';
 import { MealPlanButton } from '@/components/MealPlanButton';
+import { useNavigation } from 'expo-router';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -9,6 +10,10 @@ const MealPlansScreen: React.FC = () => {
     const router = useRouter();
     const [mealPlans, setMealPlans] = useState<any[]>([]);
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
+    const navigation = useNavigation();
+    useEffect(() => {
+        navigation.setOptions({ headerShown: false })
+    }, []);
 
     useEffect(() => {
         fetchMealPlans();
@@ -19,12 +24,12 @@ const MealPlansScreen: React.FC = () => {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) return;
 
-            // You'll need to create this endpoint to get user's meal plans
             const { data } = await axios.get(`${api_url}/mealplans/user`, {
                 headers: { "x-access-token": token }
             });
-            
+
             setMealPlans(data.data || []);
+
         } catch (error) {
             console.error("Error fetching meal plans:", error);
             setMealPlans([]);
@@ -39,10 +44,17 @@ const MealPlansScreen: React.FC = () => {
         </View>
     );
 
+    const handleBack = () => {
+        router.back();
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.header}>
+                    <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                        <Text style={styles.backButtonText}>Back</Text>
+                    </TouchableOpacity>
                     <View>
                         <Text style={styles.title}>Your Meal Plans</Text>
                         <Text style={styles.subtitle}>
@@ -51,21 +63,21 @@ const MealPlansScreen: React.FC = () => {
                     </View>
                 </View>
 
-                <TouchableOpacity 
-                    style={styles.button} 
+                <TouchableOpacity
+                    style={styles.button}
                     onPress={() => router.push('/mealplans/CreateMealPlan')}
                 >
                     <Text style={styles.buttonText}>Create Meal Plan</Text>
                 </TouchableOpacity>
-                    <FlatList
-                        data={mealPlans}
-                        renderItem={({ item }: any) => (
-                            <MealPlanButton id={item.id} name={item.name} />
-                        )}
-                        keyExtractor={(plan: any) => plan.id.toString()}
-                        ListEmptyComponent={renderEmptyState}
-                        showsVerticalScrollIndicator={false}
-                    />
+                <FlatList
+                    data={mealPlans}
+                    renderItem={({ item }: any) => (
+                        <MealPlanButton id={item.id} name={item.name} />
+                    )}
+                    keyExtractor={(plan: any) => plan.id.toString()}
+                    ListEmptyComponent={renderEmptyState}
+                    showsVerticalScrollIndicator={false}
+                />
             </View>
         </SafeAreaView>
     );
@@ -80,6 +92,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#4BA9FF',
         padding: 20,
+    },
+    backButton: {
+        backgroundColor: 'white',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 15,
+    },
+    backButtonText: {
+        color: '#4BA9FF',
+        fontWeight: 'bold',
+        fontSize: 14,
     },
     header: {
         flexDirection: 'row',

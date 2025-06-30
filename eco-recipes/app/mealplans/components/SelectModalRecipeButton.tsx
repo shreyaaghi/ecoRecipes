@@ -9,7 +9,6 @@ const SelectModalRecipeButton = ({ name, id, image, closeModal, setRecipe, recip
     return (
         <TouchableOpacity key={id} style={styles.row} onPress={() => {
             // grab name of recipe
-            console.log(id, name)
             setRecipe();
             // change type
             closeModal();

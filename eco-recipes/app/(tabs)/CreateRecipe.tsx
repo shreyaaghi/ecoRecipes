@@ -51,9 +51,6 @@ export default function CreateRecipeScreen() {
             const data = recipeResponse.data.data;
             const recipeId = data[0].id;
 
-            console.log(data);
-            console.log("recipe created w/ id:", recipeId);
-
             for (const ingredient of ingredients) {
                 if (!ingredient.name.trim()) 
                     continue; // skip empty ingredients
@@ -66,13 +63,10 @@ export default function CreateRecipeScreen() {
                     // const ingredientResponse = await axios.get(`${api_url}/ingredients/${encodeURIComponent(ingredient.name)}`);
                     ingredientId = ingredientResponse.data.data[0].id;
                     // NOTE data.data[0] will likely show up more...
-                    console.log(ingredientResponse)
-                    console.log("found existing ingredient:", ingredient.name, "w/ ID:", ingredientId);
                 } catch (error) {
                     // ingredient doesn't exist --> create it
                     const newIngredientResponse = await axios.post(`${api_url}/ingredients/`, { name: ingredient.name.trim() });
                     ingredientId = newIngredientResponse.data.data[0].id;
-                    console.log("created new ingredient:", ingredient.name, "w/ ID:", ingredientId);
                 }
 
                 // create recipe-ingredient pair
@@ -84,10 +78,7 @@ export default function CreateRecipeScreen() {
                 };
 
                 await axios.post(`${api_url}/recipe-ingredients/`, pairBody);
-                console.log("created pair:", pairBody);
             }
-
-            console.log("Recipe creation completed successfully!");
             router.navigate('/recipes');
 
         } catch (error) {

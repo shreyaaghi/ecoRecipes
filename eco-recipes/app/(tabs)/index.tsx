@@ -76,10 +76,10 @@ export default function TabOneScreen() {
         <View style={styles.row}>
           <Text style={styles.heading}>Welcome, {username}</Text>
         </View>
-        <HomeNavButton title="Recipes" icon="RecipesImg" location="Recipes Button" onPress={goToRecipes}></HomeNavButton>
-        <HomeNavButton title="Your Meal Plans" icon="MealPlansImg" location="Meal Plans Button" onPress={goToMealPlans}></HomeNavButton>
-        <HomeNavButton title="Tips and Tricks" icon="TipsImg" location="Tips and Tricks Button" onPress={goToTipsAndTricks}></HomeNavButton>
-        <HomeNavButton title="Why Sustainability?" icon="WhyImg" location="Why Sustainability Button" onPress={goToWhySustainability}></HomeNavButton>
+        <HomeNavButton title="Recipes" icon="chef-hat" size={40} color="white" location="Recipes Button" onPress={goToRecipes}></HomeNavButton>
+        <HomeNavButton title="Your Meal Plans" icon="silverware-fork-knife" size={40} color="white" location="Meal Plans Button" onPress={goToMealPlans}></HomeNavButton>
+        <HomeNavButton title="Tips and Tricks" icon="lightbulb" size={40} color="white" location="Tips and Tricks Button" onPress={goToTipsAndTricks}></HomeNavButton>
+        <HomeNavButton title="Why Sustainability?" icon="leaf" size={40} color="white" location="Why Sustainability Button" onPress={goToWhySustainability}></HomeNavButton>
       </View>
     </SafeAreaView>
   );
@@ -87,7 +87,7 @@ export default function TabOneScreen() {
 
 const styles = StyleSheet.create({
   heading: {
-    fontSize: 27,
+    fontSize: 30,
     fontWeight: 'bold',
     paddingTop: 10,
     color: 'white'
@@ -99,15 +99,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingBottom: 30,
     backgroundColor: '#4BA9FF'
-  },
-  userImage: {
-    height: 58,
-    width: 50,
-    borderRadius: 40,
-  },
-  userImageContainer: {
-    height: 58,
-    width: 50,
-    borderRadius: 40,
-  },
+  }
 });
