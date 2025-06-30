@@ -3,6 +3,8 @@ import { useState } from "react";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from "expo-router";
 import { SelectModal } from './SelectModal';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
 
 interface MealPlanRecipe {
     [props: string | number]: any;
@@ -14,7 +16,16 @@ interface MealPlanRecipe {
 const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [selectedRecipe, setSelectedRecipe] = useState<any>();
+    const [showTimePicker, setShowTimePicker] = useState(false);
     const router = useRouter();
+
+    const handleTimeChange = (_event: any, selectedTime?: Date) => {
+        setShowTimePicker(false);
+        if (selectedTime) {
+            const formatted = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            update(formatted, "time");
+        }
+    };
 
     const update = (val: string, type: string) => {
         const updatedRecipes = recipes.map((recipe: MealPlanRecipe, i: number) => {
@@ -41,14 +52,23 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
     return (
         <View>
             <View style={styles.container}>
-                <TextInput
-                // implement check to make sure it's a valid time
-                    style={styles.timeInput}
-                    placeholder="Time"
-                    value={recipes[index].time}
-                    onChangeText={(text => update(text, "time"))}
-                    clearButtonMode="while-editing"
-                />
+                <TouchableOpacity
+                    style={styles.timePickerButton}
+                    onPress={() => setShowTimePicker(true)}
+                >
+                    <Text style={styles.timePickerText}>
+                        {recipes[index].time || "Select time"}
+                    </Text>
+                </TouchableOpacity>
+                {showTimePicker && (
+                    <DateTimePicker
+                        mode="time"
+                        value={new Date()}
+                        is24Hour={false}
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={handleTimeChange}
+                    />
+                )}
                 {
                     recipes[index].recipeName ? (
 
@@ -102,14 +122,19 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         justifyContent: "space-between"
     },
-    timeInput: {
+    timePickerButton: {
         height: 40,
         width: width * 0.2,
         borderRadius: 10,
-        backgroundColor: "#ffffff",
-        color: "black",
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 10,
         marginRight: 10,
+    },
+    timePickerText: {
+        color: 'black',
+        fontSize: 14,
     },
     recipeButton: {
         height: 40,
