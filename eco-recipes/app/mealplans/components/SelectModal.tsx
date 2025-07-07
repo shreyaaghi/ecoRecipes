@@ -13,7 +13,6 @@ const SelectModal = ({ modalVisible, setModalVisible, recipe, update }: any) => 
   const search = async () => {
     try {
       let { data } = await axios.get(`${api_url}/recipes/search/${recipeSearch}`);
-      // console.info(data.data);
       setData(data.data);
     } catch (err) { }
   }
@@ -58,10 +57,10 @@ const SelectModal = ({ modalVisible, setModalVisible, recipe, update }: any) => 
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <SelectModalRecipeButton id={item.id} name={item.title}  closeModal={()=>
+              renderItem={({ item }: any) => <SelectModalRecipeButton id={item.id} name={item.title} image={item.recipe_photo} closeModal={()=>
                 setModalVisible(!modalVisible)
               } 
-              setRecipe={()=>{update(item.id, "recipeId"); update(item.title, "recipeName"); console.info(item)}}
+              setRecipe={()=>{update(item.id, "recipeId"); update(item.title, "recipeName"); update(item.recipe_photo);}}
               recipe={item}
               />
             }

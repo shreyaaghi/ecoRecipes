@@ -3,37 +3,73 @@ import { Text } from "./Themed";
 import { StyleSheet, TouchableOpacity, View, ImageBackground } from "react-native";
 import { useRouter } from 'expo-router';
 
-const RecipeButton = ({name, id, image}: Record<string, string>) => {
-    const router = useRouter();
-    const imageSrc = {uri:image}
-    return (
-        <TouchableOpacity key={id} style={styles.row} onPress={() => router.navigate(`/recipes/${id}`)}>
-            <ImageBackground source={imageSrc} resizeMode="contain" style={styles.image}>
-                <Text style={styles.buttonText}>{name}</Text>
-            </ImageBackground>
-        </TouchableOpacity>
-    )
+interface RecipeButtonProps {
+  name: string;
+  id: string;
+  image?: string | null;
+}
+
+const RecipeButton = ({ name, id, image }: RecipeButtonProps) => {
+  const router = useRouter();
+  const handlePress = () => router.navigate(`/recipes/${id}`);
+  
+  return (
+    <TouchableOpacity key={id} style={styles.cardWrapper} onPress={handlePress}>
+      {image ? (
+        <ImageBackground
+          source={{ uri: image }}
+          resizeMode="cover"
+          style={styles.cardWithImage}
+          imageStyle={styles.imageBackground}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.buttonText}>{name}</Text>
+          </View>
+        </ImageBackground>
+      ) : (
+        <View style={styles.noImageCard}>
+          <Text style={styles.buttonText}>{name}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  )
 }
 
 const styles = StyleSheet.create({
-    row: {
-      flexDirection: 'row',
-      justifyContent: "space-around",
-      paddingTop: 30,
-      paddingBottom: 30,
-      marginBottom: 40,
-      marginHorizontal: 10,
-      backgroundColor: "#41BD4B",
-      borderRadius: 30,
-    },
-    buttonText: {
-      fontSize: 20,
-      color: "white",
-      fontWeight: "bold"
-    },
-    image: {
-        justifyContent: 'center'
-    }
-  });
+  cardWrapper: {
+    marginBottom: 40,
+    marginHorizontal: 10,
+  },
+  cardWithImage: {
+    height: 150,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  imageBackground: {
+    borderRadius: 30,
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  noImageCard: {
+    backgroundColor: "#41BD4B",
+    borderRadius: 25,
+    paddingVertical: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-export {RecipeButton};
+  buttonText: {
+    fontSize: 20,
+    color: "white",
+    fontWeight: "bold",
+    textAlign: 'center',
+  },
+});
+
+export { RecipeButton };

@@ -23,7 +23,7 @@ export default function TabTwoScreen() {
         </View>
         <Text style={styles.text}>Are you sure you want to logout?</Text>
         <View>
-          <TouchableOpacity style={styles.homeButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.homeButton} onPress={()=>router.replace('/(tabs)')}>
             <Text style={styles.buttonText}>Go To Home</Text>
           </TouchableOpacity>
         </View>

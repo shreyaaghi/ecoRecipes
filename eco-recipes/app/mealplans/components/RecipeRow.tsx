@@ -40,7 +40,6 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
     const handleRecipeSearch = () => {
         // open the recipe search modal
         setModalVisible(!modalVisible)
-        console.log(`opening recipe search modal`);
     };
 
     const handleDeleteRecipe = () => {

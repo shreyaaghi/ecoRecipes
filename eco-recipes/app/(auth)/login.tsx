@@ -11,9 +11,6 @@ import { AuthNavigationProp } from './NavigationTypes';
 type SignupProps = { navigation: AuthNavigationProp; };
 
 export default function Login() {
-    // React.useEffect(() => {
-    //     console.info("Made it to Login")
-    // }, []);
     const navigation = useNavigation<AuthNavigationProp>();
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -36,7 +33,6 @@ export default function Login() {
         
             if (loginData.data) {
                 await AsyncStorage.setItem('userToken', loginData.data);
-                console.info(`Token: ${await AsyncStorage.getItem('userToken')}`);
                 router.replace('/(tabs)');
             } else {
                 setError('no token');

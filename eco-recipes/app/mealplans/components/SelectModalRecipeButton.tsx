@@ -3,43 +3,80 @@ import { Text } from "@/components/Themed";
 import { StyleSheet, TouchableOpacity, View, ImageBackground } from "react-native";
 import { useRouter } from 'expo-router';
 
-const SelectModalRecipeButton = ({ name, id, image, closeModal, setRecipe, recipe }: Record<string, any>) => {
+interface SelectModalRecipeButtonProps {
+    name: string;
+    id: string;
+    image?: string | null;
+    closeModal: () => void;
+    setRecipe: () => void;
+    recipe: Record<string, unknown>;
+}
+
+const SelectModalRecipeButton = ({ name, id, image, closeModal, setRecipe }: SelectModalRecipeButtonProps) => {
     const router = useRouter();
-    const imageSrc = { uri: image }
+    const handlePress = () => {
+        setRecipe();
+        closeModal();
+        router.navigate(`/recipes/${id}`);
+    };
+
     return (
-        <TouchableOpacity key={id} style={styles.row} onPress={() => {
-            // grab name of recipe
-            setRecipe();
-            // change type
-            closeModal();
-        }}>
-            <ImageBackground source={imageSrc} resizeMode="contain" style={styles.image}>
-                <Text style={styles.buttonText}>{name}</Text>
-            </ImageBackground>
+        <TouchableOpacity key={id} style={styles.cardWrapper} onPress={handlePress}>
+            {image ? (
+                <ImageBackground
+                    source={{ uri: image }}
+                    resizeMode="cover"
+                    style={styles.cardWithImage}
+                    imageStyle={styles.imageBackground}
+                >
+                    <View style={styles.overlay}>
+                        <Text style={styles.buttonText}>{name}</Text>
+                    </View>
+                </ImageBackground>
+            ) : (
+                <View style={styles.noImageCard}>
+                    <Text style={styles.buttonText}>{name}</Text>
+                </View>
+            )}
         </TouchableOpacity>
     )
 }
 
 const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        justifyContent: "space-around",
-        paddingTop: 30,
-        paddingBottom: 30,
+    cardWrapper: {
         marginBottom: 40,
-        paddingHorizontal: 10,
-        marginHorizontal: 10,
-        backgroundColor: "#4BA9FF",
+        marginHorizontal: 5,
+        width: 330,
+    },
+    cardWithImage: {
+        height: 150,
         borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    imageBackground: {
+        borderRadius: 30,
+    },
+    overlay: {
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    noImageCard: {
+        backgroundColor: "#4BA9FF",
+        borderRadius: 25,
+        paddingVertical: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttonText: {
         fontSize: 20,
         color: "white",
-        fontWeight: "bold"
+        fontWeight: "bold",
+        textAlign: 'center',
     },
-    image: {
-        justifyContent: 'center'
-    }
 });
 
 export { SelectModalRecipeButton };

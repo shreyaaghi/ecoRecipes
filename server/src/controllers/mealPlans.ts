@@ -234,8 +234,9 @@ const createCompleteMealPlan = async (user_id: string, name: string, days: any[]
   }
 };
 
-const updateMealPlan = async (mealPlanId: number, user_id: string, name: string, days: any[]) => {
+const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,  days: any[]) => {
   try {
+    // update meal plan name
       const { data: updatedMealPlan, error: mealPlanError } = await supabase
           .from('meal_plans')
           .update({ name: name })
@@ -249,6 +250,7 @@ const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,
               error: 'Meal plan not found or unauthorized'
           };
       }
+      // get all the existing recipes for this meal plan
       const { data: existingIncludedPlans, error: includedError } = await supabase
           .from('included_plans')
           .select(`
@@ -270,7 +272,7 @@ const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,
           };
       }
       
-      // Step 3: Build new recipe data structure
+      // process new recipe data
       const newRecipes = [];
       for (const day of days) {
           for (const recipe of day.recipes) {
@@ -284,6 +286,7 @@ const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,
           }
       }
     
+      // update existing recipes
       const existingRecipePlans = existingIncludedPlans?.map((ip: any) => ip.recipe_plans).filter(Boolean) || [];
       const updatedRecipePlanIds = [];
       
@@ -308,7 +311,7 @@ const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,
           }
       }
       
-      // Step 6: Create new recipe_plans for any extras
+      // create new recipe_plans for the extras
       if (newRecipes.length > existingRecipePlans.length) {
           for (let i = existingRecipePlans.length; i < newRecipes.length; i++) {
               const newRecipe = newRecipes[i];
@@ -323,25 +326,25 @@ const updateMealPlan = async (mealPlanId: number, user_id: string, name: string,
                   const newRecipePlanId = recipePlanResult.data[0].id;
                   updatedRecipePlanIds.push(newRecipePlanId);
                   
-                  // Create new included_plan for this new recipe_plan
+                  // create new included_plan for this new recipe_plan
                   await createIncludedPlan(mealPlanId, newRecipePlanId);
               }
           }
       }
       
-      // Step 7: Remove any extra recipe_plans if we now have fewer
+      // remove extra recipe_plans 
       if (newRecipes.length < existingRecipePlans.length) {
           for (let i = newRecipes.length; i < existingRecipePlans.length; i++) {
               const extraRecipePlan = existingRecipePlans[i];
               
               if (extraRecipePlan && extraRecipePlan.id) {
-                  // Delete the included_plan first (due to foreign key)
+                  // delete included plan first bc fk
                   const extraIncludedPlan = existingIncludedPlans?.find((ip: any) => ip.recipe_plan_id === extraRecipePlan.id);
                   if (extraIncludedPlan) {
                       await supabase.from('included_plans').delete().eq('id', extraIncludedPlan.id);
                   }
                   
-                  // Then delete the recipe_plan
+                  // delete recipe_plan
                   await supabase.from('recipe_plans').delete().eq('id', extraRecipePlan.id);
               }
           }

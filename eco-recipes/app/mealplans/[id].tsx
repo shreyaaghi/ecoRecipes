@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, StyleSheet, SafeAreaView, Dimensions, TouchableOpacity } from 'react-native';
-import { usePathname, useRouter } from 'expo-router';
+import { usePathname, useRouter, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 import { useNavigation } from 'expo-router';
@@ -24,7 +24,7 @@ interface MealPlan {
 const MealPlanView = () => {
     const pathname = usePathname();
     const router = useRouter();
-    let id = pathname.substring(pathname.lastIndexOf("/") + 1);
+    const { id } = useLocalSearchParams<{ id: string }>();
     const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
     const navigation = useNavigation();
@@ -34,6 +34,9 @@ const MealPlanView = () => {
 
     useEffect(() => {
         const fetchMealPlan = async () => {
+            if (!id || id === 'edit') {
+                return;
+            }
             try {
                 const { data } = await axios.get(`${api_url}/mealplans/${id}/recipes`);
                 setMealPlan(data.data);
@@ -41,10 +44,7 @@ const MealPlanView = () => {
                 console.error("Error fetching meal plan:", err);
             }
         };
-
-        if (id && id !== 'mealplans') { 
             fetchMealPlan();
-        }
     }, [id]);
 
     const handleRecipePress = (recipeId: number) => {
@@ -56,7 +56,7 @@ const MealPlanView = () => {
     };
 
     const handleEdit = () => {
-        router.push(`/mealplans/EditMealPlan?id=${mealPlan?.id}`);
+        router.push(`/mealplans/EditMealPlan?id=${mealPlan?.id}`); 
     };
 
     if (!mealPlan) {

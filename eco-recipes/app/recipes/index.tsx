@@ -8,8 +8,6 @@ import { SearchModal } from './components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-// import { AuthNavigationProp } from '../NavigationTypes';
 
 const RecipesScreen: React.FC = () => {
   const [data, setData] = useState<Record<string, unknown>[]>([]);
@@ -24,8 +22,7 @@ const RecipesScreen: React.FC = () => {
     (
       async () => {
         try {
-          let { data } = await axios.get(`${api_url}/recipes/recipes/`);
-          // console.info(data.data);
+          let { data } = await axios.get(`${api_url}/recipes/recipes/?pageSize=100&pageNumber=1`);
           setData(data.data);
         } catch (err) { }
       }
@@ -64,7 +61,7 @@ const RecipesScreen: React.FC = () => {
         <View style={styles.listContainer}>
           <FlatList
             data={data}
-            renderItem={({ item }: any) => <RecipeButton id={item.id} name={item.title} />}
+            renderItem={({ item }: any) => <RecipeButton id={item.id} name={item.title} image={item.recipe_photo}/>}
             keyExtractor={(plan: any) => plan.id}
           ></FlatList>
         </View>

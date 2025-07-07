@@ -7,55 +7,13 @@ import { HomeNavButton } from '@/components/HomeNavButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { useAuthenticated } from '@/hooks'; 
 
 export default function TabOneScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState<string>("");
   const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 
-  useEffect(() => {
-    (async () => {
-      try {
-        let token = await AsyncStorage.getItem('userToken');
-        if (token) {
-          const decoded = jwtDecode(token);
-          const currentTime = Math.floor(Date.now() / 1000);
-          console.log(Date.now())
-          console.log(decoded.exp)
-
-          if (decoded.exp && typeof decoded.exp == 'number') {
-            const isValid = decoded.exp > currentTime
-
-            if (!isValid) {
-              await AsyncStorage.removeItem('userToken');
-              Alert.alert("Session Expired", "Please log in again.")
-              router.replace("/auth/login");
-              return;
-            }
-          } else {
-            await AsyncStorage.removeItem('userToken');
-            Alert.alert("Invalid Token", "Please log in again.")
-            router.replace("/auth/login");
-            return;
-          }
-
-          try {
-            let { data } = await axios.get(`${api_url}/users/`, { headers: { "x-access-token": token } });
-            setUsername(data.data.username);
-          } catch (error) {
-            console.error("Error fetching user data:", error);
-            Alert.alert("Error", "Failed to fetch user data. Please try again.")
-          }
-        } else {
-          router.replace("/auth/login");
-        }
-      } catch (error) {
-        console.error("Error in token validation:", error);
-        Alert.alert("Error", "An unexpected error occurred. Please try logging in again.");
-        router.replace("/auth/login");
-      }
-    })();
-  }, [username !== ""]);
+  const username = useAuthenticated();
 
   const goToMealPlans = () => {
     router.navigate('/mealplans');

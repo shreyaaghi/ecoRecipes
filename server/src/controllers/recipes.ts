@@ -17,7 +17,7 @@ const createRecipe = async (title: string, author: string, description: string, 
     if (error) {
         return {
             status: 500,
-            error: error.message
+            error: `body error: ${error.message}`
         }
     }
     const recipeId: number = data[0].id;
@@ -31,7 +31,7 @@ const createRecipe = async (title: string, author: string, description: string, 
         if (upload_error) {
             return {
                 status: 500,
-                error: upload_error.message
+                error: `Photo error: ${upload_error.message}`
             }
         }
         const { data: photo_data } = await supabase.storage.from("recipe-images").getPublicUrl(`${recipeId}.${ext}`);
@@ -193,7 +193,6 @@ const searchRecipes = async (title: string, size: number, pageNumber: number) =>
     const { data, error } = await supabase
         .from('recipes').select('*').ilike("title", `%${title}%`).range(((pageNumber - 1) * size), ((pageNumber * size) - 1))
 
-    console.info(data);
     if (error) {
         return {
             status: 500,

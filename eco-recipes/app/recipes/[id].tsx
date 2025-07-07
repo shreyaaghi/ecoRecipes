@@ -40,7 +40,6 @@ const Recipe = () => {
   }, []);
 
   useEffect(() => {
-    console.info(`Recipe id: ${pathname}`);
     const fetchRecipe = async () => {
       try {
         const { data } = await axios.get(`${api_url}/recipes/${id}`);

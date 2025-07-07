@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions } 
 import { useEffect, useState } from "react";
 import { useRouter } from 'expo-router';
 import { Text, View, ScrollView, Button, TextInput } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import { FormInput } from "./components"
 import { IngredientInput } from "./components"
@@ -52,7 +52,7 @@ export default function CreateRecipeScreen() {
             const recipeId = data[0].id;
 
             for (const ingredient of ingredients) {
-                if (!ingredient.name.trim()) 
+                if (!ingredient.name.trim())
                     continue; // skip empty ingredients
 
                 // check if ingredient exists, create if not
@@ -88,17 +88,14 @@ export default function CreateRecipeScreen() {
 
     const addIngredientInput = () => {
         setIngredients([...ingredients, { name: "", amount: "", comments: "" }]);
-        console.info("New ingredient")
     }
 
     const addStepInput = () => {
         setSteps([...steps, ""])
-        console.info("New step!")
     }
 
     const addSustainabilityPointInput = () => {
         setSustainabilityInformation([...sustainabilityInformation, ""])
-        console.info("New sus. info!")
     }
 
     const removeIngredient = (indexToRemove: number) => {
@@ -123,11 +120,16 @@ export default function CreateRecipeScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <View style={styles.textHeader}>
-                        <Text style={styles.title}>Create Recipe</Text>
-                        <Text style={styles.subtitle}>Create your own recipe</Text>
-                    </View>
+                    <Text style={styles.title}>Create Recipe</Text>
+                    <MaterialCommunityIcons
+                        name="bowl-mix"
+                        size={50}
+                        color="white"
+                        style={styles.bowlIcon}
+                    />
+                    <Text style={styles.subtitle}>Create your own recipe</Text>
                 </View>
+
                 <ScrollView style={styles.form}>
                     <FormInput name="Title" value={title} onChangeText={setTitle} />
                     <FormInput name="Description" value={description} onChangeText={setDescription} />
@@ -233,24 +235,27 @@ const styles = StyleSheet.create({
         width: '80%'
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
         paddingBottom: 20,
-        // flex: 1,
+        position: 'relative',
     },
+
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         color: 'white',
-        // marginBottom: 10,
-        // paddingBottom: 25
+        paddingRight: 40, // create space for the bowl
     },
+
     subtitle: {
         fontSize: 16,
         color: 'white',
-        // maxWidth: '80%',
-        // paddingBottom: 20,
+        marginTop: 4,
+    },
+
+    bowlIcon: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
     },
     button: {
         backgroundColor: 'white',

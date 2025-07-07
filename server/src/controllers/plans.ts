@@ -7,7 +7,7 @@ const createIncludedPlan = async (meal_plan_id: number, recipe_plan_id: number) 
     }).select();
     
     if (error) {
-        console.log("createIncludedPlan error:", error);
+        console.error("createIncludedPlan error:", error);
         return {
             status: 500,
             error: error.message

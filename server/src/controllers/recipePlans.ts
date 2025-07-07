@@ -8,7 +8,7 @@ const createRecipePlan = async (recipe_id: number, day: string, time: string) =>
     }).select();
     
     if (error) {
-        console.log("createRecipePlan error:", error);
+        console.error("createRecipePlan error:", error);
         return {
             status: 500,
             error: error.message

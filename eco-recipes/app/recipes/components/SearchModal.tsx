@@ -12,7 +12,6 @@ const SearchModal = ({ modalVisible, setModalVisible }: any) => {
   const search = async () => {
     try {
       let { data } = await axios.get(`${api_url}/recipes/search/${recipeSearch}`);
-      // console.info(data.data);
       setData(data.data);
     } catch (err) { }
   }
@@ -57,7 +56,7 @@ const SearchModal = ({ modalVisible, setModalVisible }: any) => {
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} closeModal={()=>
+              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} image={item.recipe_photo} closeModal={()=>
                 setModalVisible(!modalVisible)
               } />}
               keyExtractor={(plan: any) => plan.id}
@@ -142,48 +141,3 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   }
 });
-
-// const styles = StyleSheet.create({
-//     container: {
-//       flex: 1,
-//       backgroundColor: '#4BA9FF',
-//       padding: 20,
-//     },
-//     header: {
-//       flexDirection: 'row',
-//       justifyContent: 'space-between',
-//       alignItems: 'flex-start',
-//       marginBottom: 20,
-//     },
-//     title: {
-//       fontSize: 32,
-//       fontWeight: 'bold',
-//       color: 'white',
-//       marginBottom: 10,
-//     },
-//     subtitle: {
-//       fontSize: 16,
-//       color: 'white',
-//       maxWidth: '80%',
-//     },
-//     button: {
-//       backgroundColor: '#4CAF50',
-//       padding: 15,
-//       borderRadius: 25,
-//       marginBottom: 15,
-//       alignItems: 'center',
-//     },
-//     buttonText: {
-//       color: 'white',
-//       fontSize: 18,
-//       fontWeight: 'bold',
-//     },
-//     userImage: {
-//       height: 58,
-//       width: 50,
-//       borderRadius: 40,
-//     },
-//     userImageContainer: {
-//       padding: 15,
-//     },
-//   });

@@ -20,7 +20,8 @@ interface Recipe {
 export default function EditMealPlanScreen() {
     const [text, setText] = useState<string>('');
     const router = useRouter();
-    const { id } = useLocalSearchParams();
+    const params = useLocalSearchParams();
+    const id = params.id;
     const [dayRecipes, setDayRecipes] = useState<{ [key: string]: Recipe[] }>({});
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
     const navigation = useNavigation();
@@ -78,9 +79,7 @@ export default function EditMealPlanScreen() {
             }
         };
 
-        if (id && id !== 'edit') {
             fetchMealPlan();
-        }
     }, [id]);
 
 

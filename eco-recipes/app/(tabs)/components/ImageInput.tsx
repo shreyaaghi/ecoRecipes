@@ -26,7 +26,6 @@ const ImageInput = ({ image, setImage, mimeType, setMimeType }: ImageInputProps)
             setImage(result.assets[0].base64);
             setMimeType(result.assets[0].mimeType);
         }
-        // console.info(result.assets[0].uri);
     };
     const removeImage = () => {
         setImage(null);
