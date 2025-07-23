@@ -1,52 +1,109 @@
-## Eco-Recipes Mobile App
+# Eco-Recipes Mobile App
 
-### Overview
-Eco-Recipes is a mobile app designed to promote sustainable eating by offering recipes that emphasize low-carbon footprint ingredients. The app features a variety of eco-friendly recipes, tips on sourcing local and seasonal ingredients, meal planning, and educational content on sustainable eating.
+## Overview
+Eco-Recipes is a mobile application designed to promote sustainable eating through a collection of eco-friendly recipes and educational resources. Built with React Native and Expo, the app helps users discover, create, and plan meals with a focus on environmental consciousness.
 
-### Benefits of using Navigation (TypeScript):
+## Features
 
-#### File-Based Routing
-- **Multiple Screens**: Includes screens for recipe lists, recipe details, ingredient sourcing tips, and meal planning.
-- **Efficient Organization**: Navigation with file-based routing helps organize these different screens efficiently, providing a better structure for the app.
+### Recipe Management
+- Browse a curated collection of sustainable recipes
+- View detailed recipe information including ingredients and preparation steps
+- Search functionality to find specific recipes
+- Create and submit your own sustainable recipes
 
-#### TypeScript
-- **Error Handling**: Using TypeScript helps catch errors early and improve code quality
-- **Data Management**: Useful for a complex app that involves handling various types of data, like recipes, ingredients, and user inputs
+### Meal Planning
+- Create personalized meal plans
+- View and manage your saved meal plans
+- Easy navigation between meal plans and recipe details
 
-### Features
+### Educational Resources
+- Learn about the importance of sustainable eating
+- Discover the health benefits of eco-friendly food choices
+- Understand the environmental impact of food choices
+- Tips for sustainable food practices
 
-#### Database and Backend (Supabase)
-- **Supabase**: Used for managing the database, including tables for Recipes, Ingredients, Users, Meal Plans, and Tips
-- **Filtering**: Implement filtering capabilities based on attributes such as dessert, savory, and sweet
+### User Experience
+- Clean, intuitive interface with a focus on usability
+- Responsive design that works across different device sizes
+- Seamless navigation between different sections of the app
 
-#### General
-- **Local and Seasonal Ingredients**: Create a section for tips on sourcing local and seasonal ingredients
-- **Suggested Recipes**: Suggested feed based on recipes in meal plan or previously tried ones (alternatively could be random ones to try something new)
-- **Resources**: Include links to articles, videos, and guides for growing your own ingredients
+## Technical Stack
 
+### Frontend
+- **Framework**: React Native with Expo
+- **Navigation**: Expo Router for file-based routing
+- **State Management**: React Context API
+- **UI Components**: React Native core components with custom styling
+- **Icons**: Expo Vector Icons
 
-#### Meal Planning and Shopping List
-- **Meal Planning**: Implement a feature for users to plan their meals for the week
+### Backend
+- **API**: Custom RESTful API
+- **Authentication**: Token-based authentication
+- **Data Storage**: AsyncStorage for local data persistence
 
+## Getting Started
 
-#### Sustainability Information
-- **Recipe Details**: Provide detailed explanations for why each recipe is sustainable, highlighting aspects like carbon footprint, water usage, and impact on biodiversity
-- **Educational Content**: Include educational content on the benefits of sustainable eating for both the environment and personal health
+### Prerequisites
+- Node.js (v14 or later)
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+- Expo Go app (for testing on physical devices)
 
-### Target Audience
-- **Adults**: Primarily targeted at adults concerned with healthier eating and sustainable diets
-- **Health Enthusiasts**: Suitable for anyone interested in eating healthy and learning about sustainable food practices
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/eco-recipes.git
+   cd eco-recipes
+   ```
 
-#### Interactive Options
-- **User Engagement**: Features such as user ratings, comments, and the ability to upload personal recipes
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-#### Finding Ingredients
-- **Ingredient Sourcing**: Integrate with external APIs to help users find local stores or farmers' markets that offer the ingredients
-- **Geolocation**: Use geolocation features to show nearby sourcing options
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   EXPO_PUBLIC_API_URL=your_api_url_here
+   ```
 
-### Getting Started
+4. Start the development server:
+   ```bash
+   npx expo start
+   ```
 
-#### Prerequisites
-- Node.js
-- Expo CLI
-- Supabase Account
+5. Run the app:
+   - On iOS: Press `i` in the terminal (requires Xcode)
+   - On Android: Press `a` in the terminal (requires Android Studio)
+   - On physical device: Scan the QR code with the Expo Go app
+
+## Project Structure
+
+```
+eco-recipes/
+├── app/                    # Main application screens
+│   ├── (auth)/             # Authentication screens
+│   ├── (tabs)/             # Main tab navigation
+│   ├── mealplans/          # Meal planning screens
+│   ├── recipes/            # Recipe browsing screens
+│   └── whysustainability/  # Educational content
+├── components/             # Reusable UI components
+├── constants/              # App constants and theme
+├── hooks/                  # Custom React hooks
+└── utilities/              # Utility functions
+```
+
+## Contributing
+
+We welcome contributions to Eco-Recipes! Please follow these steps to contribute:
+
+1. Fork the repository
+2. Create a new branch for your feature or bugfix
+3. Commit your changes with clear, descriptive messages
+4. Push to your fork and submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
