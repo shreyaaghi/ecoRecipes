@@ -12,6 +12,7 @@ import includedPlansRouter from "./routes/plans"
 import mealPlansRouter from "./routes/mealPlans"
 import recipePlansRouter from "./routes/recipePlans"
 import usersRouter from "./routes/users"
+import aiRouter from "./routes/ai"
 
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
@@ -31,6 +32,7 @@ app.use("/plans", includedPlansRouter());
 app.use("/mealplans", mealPlansRouter());
 app.use("/recipe-plans", recipePlansRouter());
 app.use("/users", usersRouter());
+app.use("/ai", aiRouter());
 
 app.get("/", (req:Request, res:Response) => res.send("hello"));
 

@@ -6,3 +6,4 @@ export * from "./plans";
 export * from "./mealPlans";
 export * from "./recipePlans";
 export * from "./users";
+export * from "./ai";
