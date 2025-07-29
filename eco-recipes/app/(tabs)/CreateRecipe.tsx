@@ -61,7 +61,6 @@ export default function CreateRecipeScreen() {
 
             const recipeResponse = await axios.post(`${api_url}/recipes/`, recipeBody);
 
-
             const data = recipeResponse.data.data;
             const recipeId = data[0].id;
 
@@ -72,13 +71,9 @@ export default function CreateRecipeScreen() {
                 // check if ingredient exists, create if not
                 let ingredientId;
                 try {
-                    // get the ingredient by name
                     const ingredientResponse = await axios.get(`${api_url}/ingredients/${ingredient.name}`);
-                    // const ingredientResponse = await axios.get(`${api_url}/ingredients/${encodeURIComponent(ingredient.name)}`);
                     ingredientId = ingredientResponse.data.data[0].id;
-                    // NOTE data.data[0] will likely show up more...
                 } catch (error) {
-                    // ingredient doesn't exist --> create it
                     const newIngredientResponse = await axios.post(`${api_url}/ingredients/`, { name: ingredient.name.trim() });
                     ingredientId = newIngredientResponse.data.data[0].id;
                 }
@@ -93,10 +88,23 @@ export default function CreateRecipeScreen() {
 
                 await axios.post(`${api_url}/recipe-ingredients/`, pairBody);
             }
+            
+            // Clear the form after successful submission
+            setTitle("");
+            setDescription("");
+            setIngredients([{ name: "", amount: "", comments: "" }]);
+            setSteps([""]);
+            setSustainabilityInformation([""]);
+            setRecipeImage(null);
+            setRecipeMimeType(undefined);
+            setGenerateAISustainability(false);
+            
+            // Navigate to recipes page
             router.navigate('/recipes');
 
         } catch (error) {
             console.error('Error in recipe creation process:', error);
+            Alert.alert("Error", "Failed to create recipe. Please try again.");
         } finally {
             setIsSubmitting(false);
         }

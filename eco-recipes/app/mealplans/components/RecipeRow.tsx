@@ -60,13 +60,32 @@ const RecipeRow = ({ index, setRecipes, recipes, day }: any) => {
                     </Text>
                 </TouchableOpacity>
                 {showTimePicker && (
-                    <DateTimePicker
-                        mode="time"
-                        value={new Date()}
-                        is24Hour={false}
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={handleTimeChange}
-                    />
+                    <View style={styles.timePickerContainer}>
+                        <DateTimePicker
+                            mode="time"
+                            value={new Date()}
+                            is24Hour={false}
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={handleTimeChange}
+                            style={styles.timePicker}
+                        />
+                        {Platform.OS === 'ios' && (
+                            <View style={styles.timePickerActions}>
+                                <TouchableOpacity 
+                                    style={styles.cancelButton}
+                                    onPress={() => setShowTimePicker(false)}
+                                >
+                                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    style={styles.doneButton}
+                                    onPress={() => setShowTimePicker(false)}
+                                >
+                                    <Text style={styles.doneButtonText}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
                 )}
                 {
                     recipes[index].recipeName ? (
@@ -112,28 +131,65 @@ export { RecipeRow };
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 5,
-        marginVertical: 8,
-        justifyContent: "space-between"
+        marginBottom: 10,
+        width: '100%',
     },
     timePickerButton: {
-        height: 40,
-        width: width * 0.2,
-        borderRadius: 10,
-        backgroundColor: '#ffffff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 10,
+        padding: 10,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 5,
         marginRight: 10,
+        minWidth: 80,
+        alignItems: 'center',
     },
     timePickerText: {
-        color: 'black',
-        fontSize: 14,
+        color: '#333',
+    },
+    timePickerContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        zIndex: 1000,
+        elevation: 5,
+        borderRadius: 10,
+        padding: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    timePicker: {
+        width: '100%',
+    },
+    timePickerActions: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        padding: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    cancelButton: {
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        marginRight: 10,
+    },
+    doneButton: {
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 5,
+    },
+    doneButtonText: {
+        color: 'white',
+        fontWeight: '600',
+    },
+    cancelButtonText: {
+        color: '#007AFF',
     },
     recipeButton: {
         height: 40,
