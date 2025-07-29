@@ -40,7 +40,7 @@ const createRecipe = async (title: string, author: string, description: string, 
     }
 
     const { data, error } = await supabase.from("recipes").insert([{
-        title: title, author: author, description: description, steps: steps, category: category, sustainability_info: sustainability_info, sustainability_score: sustainabilityScore, sustainable_aspects: sustainableAspects, improvement_suggestions: improvementSuggestions, sustainability_reasoning: sustainabilityReasoning, ai_generated_sustainability: aiGenerated, user_generated: user_generated ?? true
+        title: title, author: author, description: description, steps: steps, category: category, sustainability_info: sustainability_info, sustainability_score: sustainabilityScore, sustainable_aspects: sustainableAspects, improvement_suggestions: improvementSuggestions, sustainability_reasoning: sustainabilityReasoning, ai_generated_sustainability: aiGenerated, user_generated: user_generated ?? true 
     }]).select();
     if (error) {
         return {
@@ -49,7 +49,6 @@ const createRecipe = async (title: string, author: string, description: string, 
         }
     }
     const recipeId: number = data[0].id;
-    // const photo = decode(recipe_photo);
 
     if (recipe_photo) {
         const photo = decode(recipe_photo?.toString('base64'));

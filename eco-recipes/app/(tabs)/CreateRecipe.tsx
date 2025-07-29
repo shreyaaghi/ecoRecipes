@@ -194,7 +194,6 @@ export default function CreateRecipeScreen() {
                         </View>
                     ))}
 
-                    {/* AI Sustainability Toggle */}
                     <View style={styles.aiToggleContainer}>
                         <View style={styles.aiToggleContent}>
                             <View style={styles.aiToggleTextContainer}>
@@ -212,7 +211,6 @@ export default function CreateRecipeScreen() {
                         </View>
                     </View>
 
-                    {/* Manual Sustainability Input (only show if AI is disabled) */}
                     {!generateAISustainability && (
                         <>
                             <TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
@@ -237,19 +235,6 @@ export default function CreateRecipeScreen() {
                                 </View>
                             ))}
                         </>
-                    )}
-
-                    {/* AI Sustainability Info Display */}
-                    {generateAISustainability && (
-                        <View style={styles.aiInfoContainer}>
-                            <Text style={styles.aiInfoText}>
-                                🤖 AI will analyze your recipe's sustainability based on:
-                            </Text>
-                            <Text style={styles.aiInfoBullet}>• Ingredient sourcing and seasonality</Text>
-                            <Text style={styles.aiInfoBullet}>• Environmental impact and carbon footprint</Text>
-                            <Text style={styles.aiInfoBullet}>• Processing levels and food miles</Text>
-                            <Text style={styles.aiInfoBullet}>• Waste reduction potential</Text>
-                        </View>
                     )}
 
                     <CategoryInput
@@ -396,26 +381,5 @@ const styles = StyleSheet.create({
     aiToggleSubtitle: {
         fontSize: 14,
         color: '#666',
-    },
-    aiInfoContainer: {
-        backgroundColor: '#E3F2FD',
-        marginVertical: 10,
-        marginHorizontal: 5,
-        borderRadius: 15,
-        padding: 15,
-        borderLeftWidth: 4,
-        borderLeftColor: '#4BA9FF',
-    },
-    aiInfoText: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 8,
-    },
-    aiInfoBullet: {
-        fontSize: 12,
-        color: '#555',
-        marginBottom: 4,
-        marginLeft: 10,
     },
 });

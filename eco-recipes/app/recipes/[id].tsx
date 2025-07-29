@@ -110,7 +110,6 @@ const Recipe = () => {
           <Text style={styles.aiTitle}>🤖 AI Sustainability Analysis</Text>
         </View>
 
-        {/* Sustainability Score */}
         <View style={styles.scoreContainer}>
           <View style={[styles.scoreCircle, { borderColor: getScoreColor(recipe.sustainability_score) }]}>
             <Text style={[styles.scoreNumber, { color: getScoreColor(recipe.sustainability_score) }]}>
@@ -126,7 +125,6 @@ const Recipe = () => {
           </View>
         </View>
 
-        {/* Sustainable Aspects */}
         {recipe.sustainable_aspects && recipe.sustainable_aspects.length > 0 && (
           <View style={styles.aspectsContainer}>
             <Text style={styles.aspectsTitle}>✅ What Makes This Recipe Sustainable</Text>
@@ -136,17 +134,15 @@ const Recipe = () => {
           </View>
         )}
 
-        {/* Improvement Suggestions */}
         {recipe.improvement_suggestions && recipe.improvement_suggestions.length > 0 && (
           <View style={styles.suggestionsContainer}>
-            <Text style={styles.suggestionsTitle}>💡 Ways to Make It Even Better</Text>
+            <Text style={styles.suggestionsTitle}>💡 What Could Improve</Text>
             {recipe.improvement_suggestions.map((suggestion, index) => (
               <Text key={index} style={styles.suggestionItem}>• {suggestion}</Text>
             ))}
           </View>
         )}
 
-        {/* AI Reasoning */}
         {recipe.sustainability_reasoning && (
           <View style={styles.reasoningContainer}>
             <Text style={styles.reasoningTitle}>🧠 Analysis Summary</Text>
