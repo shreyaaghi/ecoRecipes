@@ -12,6 +12,7 @@ import { RecipeCategory } from './components/types';
 import { CategoryInput } from "./components/CategoryInput";
 import { ImageInput } from './components/ImageInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuthenticated } from '../../hooks/useAuthenticated';
 
 interface Ingredient {
     name: string;
@@ -21,6 +22,8 @@ interface Ingredient {
 
 export default function CreateRecipeScreen() {
     const router = useRouter();
+    const username = useAuthenticated();
+    
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [ingredients, setIngredients] = useState<Ingredient[]>([
@@ -34,6 +37,10 @@ export default function CreateRecipeScreen() {
     const [generateAISustainability, setGenerateAISustainability] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
+
+    if (!username) {
+        return null; 
+    }
 
     const handleSubmit = async () => {
         if (isSubmitting) return;

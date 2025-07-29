@@ -5,6 +5,7 @@ import { RecipeRow } from '../components/RecipeRow';
 import { useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useAuthenticated } from '../../../hooks/useAuthenticated';
 
 interface DayItem {
     id: string;
@@ -25,9 +26,15 @@ export default function EditMealPlanScreen() {
     const [dayRecipes, setDayRecipes] = useState<{ [key: string]: Recipe[] }>({});
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
     const navigation = useNavigation();
+    const username = useAuthenticated();
+    
     useEffect(() => {
         navigation.setOptions({ headerShown: false })
     }, []);
+    
+    if (!username) {
+        return null; 
+    }
 
     const daysOfWeek: DayItem[] = [
         { id: '1', name: 'Monday' },

@@ -6,6 +6,7 @@ import { useNavigation } from 'expo-router';
 import { SelectModal } from '../components/SelectModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useAuthenticated } from '../../../hooks/useAuthenticated';
 
 interface DayItem {
     id: string;
@@ -24,9 +25,16 @@ export default function CreateMealPlanScreen() {
     const [dayRecipes, setDayRecipes] = useState<{ [key: string]: Recipe[] }>({});
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
     const navigation = useNavigation();
+    
+    const username  = useAuthenticated();
+    
     useEffect(() => {
         navigation.setOptions({ headerShown: false })
     }, []);
+
+    if (!username) {
+        return null; 
+    }
 
     const createMealPlan = async () => {
         if (!text) {
