@@ -10,9 +10,7 @@ const recipesRouter = () => {
     router.get("/", (req: Request, res: Response) => res.send("recipes"));
 
     router.post("/", async (req: Request, res: Response) => {
-        const 
-        { title, description, steps, category, sustainability_info, user_generated, recipe_photo, mime_type }:
-         { title: string, description: string, steps: string, category: string, sustainability_info: string, user_generated?: string, recipe_photo:string, mime_type:string } = req.body;
+        const { title, description, steps, category, sustainability_info, user_generated, recipe_photo, mime_type, generateSustainabilityAI, ingredients }: { title: string, description: string, steps: string, category: string, sustainability_info: string, user_generated?: string, recipe_photo: string, mime_type: string, generateSustainabilityAI?: boolean, ingredients?: string[] } = req.body;
 
         const token: string | undefined = req.get("x-access-token");
         const { data: { user } } = await supabase.auth.getUser(token);
@@ -20,7 +18,10 @@ const recipesRouter = () => {
             return res.status(401).send("not authenticated")
         }
         const userId: string = user.id;
-        return res.send(await createRecipe(title, userId, description, steps, category, sustainability_info, recipe_photo, mime_type, user_generated === "true" || user_generated === "false"))
+
+        return res.send(await createRecipe(
+            title, userId, description, steps, category, sustainability_info, recipe_photo, mime_type, user_generated === "true" || user_generated === "false", generateSustainabilityAI, ingredients
+        ));
     });
 
     router.get("/recipes/", async (req: Request, res: Response) => {

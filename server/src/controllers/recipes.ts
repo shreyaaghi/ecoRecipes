@@ -2,17 +2,45 @@ import { supabase } from "../util/supabase";
 import { get_file_ext } from "../util";
 import { decode } from 'base64-arraybuffer';
 import { getUser } from './users';
+import { analyzeSustainability } from "./ai";
 
-const createRecipe = async (title: string, author: string, description: string, steps: string, category: string, sustainability_info: string, recipe_photo: any, photo_type: string, user_generated?: boolean) => {
+const createRecipe = async (title: string, author: string, description: string, steps: string, category: string, sustainability_info: string, recipe_photo: any, photo_type: string, user_generated?: boolean, generateSustainabilityAI?: boolean, ingredients?: string[]) => {
+
+    let sustainabilityScore: number | null = null;
+    let sustainableAspects: string[] | null = null;
+    let improvementSuggestions: string[] | null = null;
+    let sustainabilityReasoning: string | null = null;
+    let aiGenerated = false;
+
+    if (generateSustainabilityAI && ingredients && ingredients.length > 0) {
+        try {
+            const analysisResult = await analyzeSustainability({
+                title,
+                description,
+                ingredients,
+                steps,
+                category
+            });
+
+            if (analysisResult.status === 200 && analysisResult.data) {
+                sustainabilityScore = analysisResult.data.sustainabilityScore;
+                sustainableAspects = analysisResult.data.sustainableAspects;
+                improvementSuggestions = analysisResult.data.improvementSuggestions;
+                sustainabilityReasoning = analysisResult.data.reasoning;
+                aiGenerated = true;
+
+                sustainability_info = '';
+            } else {
+                console.error('AI sustainability analysis failed:', analysisResult.error);
+                // manual input if AI fails
+            }
+        } catch (error) {
+            console.error('Error during AI sustainability analysis:', error);
+        }
+    }
+
     const { data, error } = await supabase.from("recipes").insert([{
-        title: title,
-        author: author,
-        description: description,
-        steps: steps,
-        category: category,
-        sustainability_info: sustainability_info,
-        // recipe_photo: ,
-        user_generated: user_generated ?? true
+        title: title, author: author, description: description, steps: steps, category: category, sustainability_info: sustainability_info, sustainability_score: sustainabilityScore, sustainable_aspects: sustainableAspects, improvement_suggestions: improvementSuggestions, sustainability_reasoning: sustainabilityReasoning, ai_generated_sustainability: aiGenerated, user_generated: user_generated ?? true
     }]).select();
     if (error) {
         return {

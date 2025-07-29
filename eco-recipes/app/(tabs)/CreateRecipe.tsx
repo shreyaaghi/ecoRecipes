@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Alert, SafeAreaView, Dimensions, Switch } from 'react-native';
 import { useEffect, useState } from "react";
 import { useRouter } from 'expo-router';
 import { Text, View, ScrollView, Button, TextInput } from 'react-native';
@@ -11,6 +11,7 @@ import { SustainabilityPointInput } from "./components";
 import { RecipeCategory } from './components/types';
 import { CategoryInput } from "./components/CategoryInput";
 import { ImageInput } from './components/ImageInput';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Ingredient {
     name: string;
@@ -30,19 +31,32 @@ export default function CreateRecipeScreen() {
     const [category, setCategory] = useState<RecipeCategory>('Breakfast');
     const [recipeImage, setRecipeImage] = useState<string | null>(null);
     const [recipeMimeType, setRecipeMimeType] = useState<string | undefined>(undefined);
+    const [generateAISustainability, setGenerateAISustainability] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 
     const handleSubmit = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) {
+                Alert.alert("Error", "log in to create a recipe");
+                setIsSubmitting(false);
+                return;
+            }
+    
             const recipeBody: any = {
                 title: title,
                 description: description,
                 steps: steps.join("```"),
                 category: category,
-                sustainability_info: sustainabilityInformation.join("```"),
+                sustainability_info: generateAISustainability ? "" : sustainabilityInformation.join("```"),
                 recipe_photo: recipeImage,
                 mime_type: recipeMimeType,
-                user_generated: "true"
+                user_generated: "true",
+                generateSustainabilityAI: generateAISustainability,
+                ingredients: generateAISustainability ? ingredients.map(ing => ing.name).filter(name => name.trim()) : undefined
             };
 
             const recipeResponse = await axios.post(`${api_url}/recipes/`, recipeBody);
@@ -83,6 +97,8 @@ export default function CreateRecipeScreen() {
 
         } catch (error) {
             console.error('Error in recipe creation process:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -133,6 +149,7 @@ export default function CreateRecipeScreen() {
                 <ScrollView style={styles.form}>
                     <FormInput name="Title" value={title} onChangeText={setTitle} />
                     <FormInput name="Description" value={description} onChangeText={setDescription} />
+                    
                     <TouchableOpacity style={styles.ingredientButton} onPress={addIngredientInput}>
                         <Text style={styles.buttonText}>Add Ingredient</Text>
                     </TouchableOpacity>
@@ -177,38 +194,84 @@ export default function CreateRecipeScreen() {
                         </View>
                     ))}
 
-                    <TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
-                        <Text style={styles.buttonText}>Add Sustainability Point</Text>
-                    </TouchableOpacity>
-
-                    {sustainabilityInformation.map((sustainabilityPoint, index) => (
-                        <View key={index} style={styles.ingredientContainer}>
-                            <SustainabilityPointInput
-                                index={index}
-                                setSustainabilityInformation={setSustainabilityInformation}
-                                sustainabilityInformation={sustainabilityInformation}
+                    {/* AI Sustainability Toggle */}
+                    <View style={styles.aiToggleContainer}>
+                        <View style={styles.aiToggleContent}>
+                            <View style={styles.aiToggleTextContainer}>
+                                <Text style={styles.aiToggleTitle}>Generate Sustainability Analysis with AI</Text>
+                                <Text style={styles.aiToggleSubtitle}>
+                                    Let AI analyze your recipe's environmental impact automatically
+                                </Text>
+                            </View>
+                            <Switch
+                                value={generateAISustainability}
+                                onValueChange={setGenerateAISustainability}
+                                trackColor={{ false: '#767577', true: '#4BA9FF' }}
+                                thumbColor={generateAISustainability ? '#ffffff' : '#f4f3f4'}
                             />
-                            {index > 0 && (
-                                <TouchableOpacity
-                                    style={styles.removeButton}
-                                    onPress={() => removeSustainabilityInfo(index)}
-                                >
-                                    <Text style={styles.removeButtonText}>✕</Text>
-                                </TouchableOpacity>
-                            )}
                         </View>
-                    ))}
+                    </View>
+
+                    {/* Manual Sustainability Input (only show if AI is disabled) */}
+                    {!generateAISustainability && (
+                        <>
+                            <TouchableOpacity style={styles.ingredientButton} onPress={addSustainabilityPointInput}>
+                                <Text style={styles.buttonText}>Add Sustainability Point</Text>
+                            </TouchableOpacity>
+
+                            {sustainabilityInformation.map((sustainabilityPoint, index) => (
+                                <View key={index} style={styles.ingredientContainer}>
+                                    <SustainabilityPointInput
+                                        index={index}
+                                        setSustainabilityInformation={setSustainabilityInformation}
+                                        sustainabilityInformation={sustainabilityInformation}
+                                    />
+                                    {index > 0 && (
+                                        <TouchableOpacity
+                                            style={styles.removeButton}
+                                            onPress={() => removeSustainabilityInfo(index)}
+                                        >
+                                            <Text style={styles.removeButtonText}>✕</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            ))}
+                        </>
+                    )}
+
+                    {/* AI Sustainability Info Display */}
+                    {generateAISustainability && (
+                        <View style={styles.aiInfoContainer}>
+                            <Text style={styles.aiInfoText}>
+                                🤖 AI will analyze your recipe's sustainability based on:
+                            </Text>
+                            <Text style={styles.aiInfoBullet}>• Ingredient sourcing and seasonality</Text>
+                            <Text style={styles.aiInfoBullet}>• Environmental impact and carbon footprint</Text>
+                            <Text style={styles.aiInfoBullet}>• Processing levels and food miles</Text>
+                            <Text style={styles.aiInfoBullet}>• Waste reduction potential</Text>
+                        </View>
+                    )}
 
                     <CategoryInput
                         category={category}
                         setCategory={setCategory}
                     />
 
-                    <ImageInput image={recipeImage}
-                        setImage={setRecipeImage} mimeType={recipeMimeType} setMimeType={setRecipeMimeType} />
+                    <ImageInput 
+                        image={recipeImage}
+                        setImage={setRecipeImage} 
+                        mimeType={recipeMimeType} 
+                        setMimeType={setRecipeMimeType} 
+                    />
 
-                    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                        <Text style={styles.buttonText}>Submit</Text>
+                    <TouchableOpacity 
+                        style={[styles.button, isSubmitting && styles.buttonDisabled]} 
+                        onPress={handleSubmit}
+                        disabled={isSubmitting}
+                    >
+                        <Text style={styles.buttonText}>
+                            {isSubmitting ? "Creating Recipe..." : "Submit"}
+                        </Text>
                     </TouchableOpacity>
                 </ScrollView>
             </View>
@@ -238,20 +301,17 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         position: 'relative',
     },
-
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         color: 'white',
-        paddingRight: 40, // create space for the bowl
+        paddingRight: 40,
     },
-
     subtitle: {
         fontSize: 16,
         color: 'white',
         marginTop: 4,
     },
-
     bowlIcon: {
         position: 'absolute',
         top: 0,
@@ -264,6 +324,10 @@ const styles = StyleSheet.create({
         width: width * 0.25,
         alignSelf: 'center',
         alignItems: 'center',
+        marginTop: 20,
+    },
+    buttonDisabled: {
+        backgroundColor: '#cccccc',
     },
     ingredientButton: {
         backgroundColor: 'white',
@@ -278,9 +342,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 18,
         fontWeight: 'bold',
-    },
-    searchImageContainer: {
-        // padding: 15,
     },
     form: {
         backgroundColor: '#4CAF50',
@@ -310,4 +371,51 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-});  
+    aiToggleContainer: {
+        backgroundColor: 'white',
+        marginVertical: 10,
+        marginHorizontal: 5,
+        borderRadius: 15,
+        padding: 15,
+    },
+    aiToggleContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    aiToggleTextContainer: {
+        flex: 1,
+        marginRight: 15,
+    },
+    aiToggleTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 4,
+    },
+    aiToggleSubtitle: {
+        fontSize: 14,
+        color: '#666',
+    },
+    aiInfoContainer: {
+        backgroundColor: '#E3F2FD',
+        marginVertical: 10,
+        marginHorizontal: 5,
+        borderRadius: 15,
+        padding: 15,
+        borderLeftWidth: 4,
+        borderLeftColor: '#4BA9FF',
+    },
+    aiInfoText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 8,
+    },
+    aiInfoBullet: {
+        fontSize: 12,
+        color: '#555',
+        marginBottom: 4,
+        marginLeft: 10,
+    },
+});

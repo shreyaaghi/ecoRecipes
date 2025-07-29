@@ -15,7 +15,11 @@ interface Recipe {
   sustainability_info: string;
   recipe_photo: string | null;
   created_at: string;
-  user_generated: boolean;
+  user_generated: boolean; sustainability_score?: number;
+  sustainable_aspects?: string[];
+  improvement_suggestions?: string[];
+  sustainability_reasoning?: string;
+  ai_generated_sustainability?: boolean;
 }
 interface Ingredient {
   id: number;
@@ -78,8 +82,91 @@ const Recipe = () => {
       <Text key={index} style={styles.ingredient}>{index + 1}. {ingredient.amount} {ingredient.name.trim()}  {ingredient.comments}</Text>
     ));
   };
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return '#4CAF50'; // Green
+    if (score >= 60) return '#FF9800'; // Orange
+    return '#F44336'; // Red
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Fair';
+    return 'Needs Improvement';
+  };
+
   const handleBack = () => {
     router.back();
+  };
+
+  const renderAISustainabilityInfo = () => {
+    if (!recipe.ai_generated_sustainability || !recipe.sustainability_score) {
+      return null;
+    }
+
+    return (
+      <View style={styles.aiSustainabilityContainer}>
+        <View style={styles.aiHeader}>
+          <Text style={styles.aiTitle}>🤖 AI Sustainability Analysis</Text>
+        </View>
+
+        {/* Sustainability Score */}
+        <View style={styles.scoreContainer}>
+          <View style={[styles.scoreCircle, { borderColor: getScoreColor(recipe.sustainability_score) }]}>
+            <Text style={[styles.scoreNumber, { color: getScoreColor(recipe.sustainability_score) }]}>
+              {recipe.sustainability_score}
+            </Text>
+            <Text style={styles.scoreOutOf}>/100</Text>
+          </View>
+          <View style={styles.scoreLabelContainer}>
+            <Text style={[styles.scoreLabel, { color: getScoreColor(recipe.sustainability_score) }]}>
+              {getScoreLabel(recipe.sustainability_score)}
+            </Text>
+            <Text style={styles.scoreDescription}>Sustainability Score</Text>
+          </View>
+        </View>
+
+        {/* Sustainable Aspects */}
+        {recipe.sustainable_aspects && recipe.sustainable_aspects.length > 0 && (
+          <View style={styles.aspectsContainer}>
+            <Text style={styles.aspectsTitle}>✅ What Makes This Recipe Sustainable</Text>
+            {recipe.sustainable_aspects.map((aspect, index) => (
+              <Text key={index} style={styles.aspectItem}>• {aspect}</Text>
+            ))}
+          </View>
+        )}
+
+        {/* Improvement Suggestions */}
+        {recipe.improvement_suggestions && recipe.improvement_suggestions.length > 0 && (
+          <View style={styles.suggestionsContainer}>
+            <Text style={styles.suggestionsTitle}>💡 Ways to Make It Even Better</Text>
+            {recipe.improvement_suggestions.map((suggestion, index) => (
+              <Text key={index} style={styles.suggestionItem}>• {suggestion}</Text>
+            ))}
+          </View>
+        )}
+
+        {/* AI Reasoning */}
+        {recipe.sustainability_reasoning && (
+          <View style={styles.reasoningContainer}>
+            <Text style={styles.reasoningTitle}>🧠 Analysis Summary</Text>
+            <Text style={styles.reasoningText}>{recipe.sustainability_reasoning}</Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderManualSustainabilityInfo = () => {
+    if (recipe.ai_generated_sustainability || !recipe.sustainability_info) {
+      return null;
+    }
+    return (
+      <View style={styles.manualSustainabilityContainer}>
+        <Text style={styles.sectionTitle}>Sustainability Info:</Text>
+        {formatSustainabilityInfo(recipe.sustainability_info)}
+      </View>
+    );
   };
 
   return (
@@ -108,8 +195,8 @@ const Recipe = () => {
           {formatIngredients()}
           <Text style={styles.sectionTitle}>Steps:</Text>
           {formatSteps(recipe.steps)}
-          <Text style={styles.sectionTitle}>Sustainability Info:</Text>
-          {formatSustainabilityInfo(recipe.sustainability_info)}
+          {renderAISustainabilityInfo()}
+          {renderManualSustainabilityInfo()}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -164,11 +251,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     padding: 16,
     paddingBottom: 32
@@ -222,16 +304,105 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold'
   },
-  additionalInfo: {
-    fontSize: 14,
-    color: 'gray',
-    marginTop: 16,
+  aiSustainabilityContainer: {
+    backgroundColor: 'white',
+    marginTop: 20,
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 5,
   },
-  line: {
-    width: '80%',
-    height: 1,
-    backgroundColor: 'black',
-    marginVertical: 10,
+  aiHeader: {
+    marginBottom: 15,
+  },
+  aiTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    justifyContent: 'center',
+  },
+  scoreCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  scoreNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  scoreOutOf: {
+    fontSize: 12,
+    color: '#666',
+  },
+  scoreLabelContainer: {
+    flex: 1,
+  },
+  scoreLabel: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  scoreDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  aspectsContainer: {
+    marginBottom: 15,
+  },
+  aspectsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: 8,
+  },
+  aspectItem: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+    lineHeight: 20,
+  },
+  suggestionsContainer: {
+    marginBottom: 15,
+  },
+  suggestionsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    marginBottom: 8,
+  },
+  suggestionItem: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+    lineHeight: 20,
+  },
+  reasoningContainer: {
+    backgroundColor: '#F5F5F5',
+    padding: 15,
+    borderRadius: 10,
+  },
+  reasoningTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  reasoningText: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+  },
+
+  manualSustainabilityContainer: {
+    marginTop: 10,
   },
 });
 
