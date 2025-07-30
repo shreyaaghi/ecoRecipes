@@ -3,6 +3,7 @@ import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 import { useNavigation, useRouter } from 'expo-router';
+import { fixImageUrl } from '@/utils/imageUtils';
 
 // Recipe interface, type checks recipe data
 interface Recipe {
@@ -75,11 +76,13 @@ const Recipe = () => {
   };
 
   const formatIngredients = () => {
-    if (!ingredients) {
-      return;
+    if (!ingredients || ingredients.length === 0) {
+      return <Text style={styles.ingredient}>No ingredients listed</Text>;
     }
     return ingredients.map((ingredient, index) => (
-      <Text key={index} style={styles.ingredient}>{index + 1}. {ingredient.amount} {ingredient.name.trim()}  {ingredient.comments}</Text>
+      <Text key={index} style={styles.ingredient}>
+        {index + 1}. {ingredient.amount} {ingredient.name.trim()}  {ingredient.comments}
+      </Text>
     ));
   };
   const getScoreColor = (score: number) => {
@@ -172,11 +175,15 @@ const Recipe = () => {
           <View style={styles.imageContainer}>
             <Image
               source={{
-                uri: recipe.recipe_photo !== null
-                  ? recipe.recipe_photo
-                  : `https://fakeimg.pl/${Dimensions.get('window').width}x${Dimensions.get('window').height * 0.25}?text="${recipe.title}"`
+                uri: recipe.recipe_photo 
+                  ? fixImageUrl(recipe.recipe_photo) || ''  
+                  : `https://fakeimg.pl/${Math.floor(Dimensions.get('window').width)}x${Math.floor(Dimensions.get('window').height * 0.25)}?text=${encodeURIComponent(recipe.title)}`
               }}
               style={styles.image}
+              resizeMode="cover"
+              onError={(e) => {
+                console.log('Failed to load image:', e.nativeEvent.error);
+              }}
             />
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Text style={styles.backButtonText}>Back</Text>

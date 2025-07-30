@@ -5,6 +5,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 import axios from 'axios';
 import { ModalRecipeButton } from "@/components/ModalRecipeButton";
+import { fixImageUrl } from '@/utils/imageUtils';
 
 const SearchModal = ({ modalVisible, setModalVisible }: any) => {
   const [recipeSearch, setRecipeSearch] = useState("");
@@ -56,10 +57,11 @@ const SearchModal = ({ modalVisible, setModalVisible }: any) => {
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} image={item.recipe_photo} closeModal={()=>
+              renderItem={({ item }: any) => <ModalRecipeButton id={item.id} name={item.title} image={fixImageUrl(item.recipe_photo)} closeModal={()=>
                 setModalVisible(!modalVisible)
               } />}
               keyExtractor={(plan: any) => plan.id}
+              
             ></FlatList>
           </View>
         </View>

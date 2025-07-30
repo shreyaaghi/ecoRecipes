@@ -8,6 +8,7 @@ import { SearchModal } from './components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
+import { fixImageUrl } from '@/utils/imageUtils';
 
 const items_per_page = 10; // Number of recipes to show per page
 
@@ -48,7 +49,7 @@ const RecipesScreen: React.FC = () => {
         setAllRecipes(allRecipes);
       } catch (error) {
         console.error('Error fetching recipes:', error);
-        // Fallback to just getting first page if something goes wrong
+
         try {
           const { data } = await axios.get(
             `${api_url}/recipes/recipes/?pageSize=100&pageNumber=1`
@@ -116,7 +117,7 @@ const RecipesScreen: React.FC = () => {
           <FlatList
             data={currentRecipes}
             renderItem={({ item }: any) => (
-              <RecipeButton id={item.id} name={item.title} image={item.recipe_photo} />
+              <RecipeButton id={item.id} name={item.title} image={fixImageUrl(item.recipe_photo)} />
             )}
             keyExtractor={(item: any) => item.id}
             ListEmptyComponent={

@@ -5,8 +5,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 const api_url = process.env.EXPO_PUBLIC_API_URL || "";
 import axios from 'axios';
 import { SelectModalRecipeButton } from "./SelectModalRecipeButton";
+import { fixImageUrl } from '@/utils/imageUtils';
 
-const SelectModal = ({ modalVisible, setModalVisible, recipe, update }: any) => {
+const SelectModal = ({ modalVisible, setModalVisible, update, day, recipe }: any) => {
   const [recipeSearch, setRecipeSearch] = useState("");
   const [data, setData] = useState<Record<string, unknown>[]>([]);
 
@@ -57,10 +58,10 @@ const SelectModal = ({ modalVisible, setModalVisible, recipe, update }: any) => 
             </View>
             <FlatList
               data={data}
-              renderItem={({ item }: any) => <SelectModalRecipeButton id={item.id} name={item.title} image={item.recipe_photo} closeModal={()=>
+              renderItem={({ item }: any) => <SelectModalRecipeButton id={item.id} name={item.title} image={fixImageUrl(item.recipe_photo)} closeModal={()=>
                 setModalVisible(!modalVisible)
               } 
-              setRecipe={()=>{update(item.id, "recipeId"); update(item.title, "recipeName"); update(item.recipe_photo);}}
+              setRecipe={()=>{update(item.id, "recipeId"); update(item.title, "recipeName"); update(fixImageUrl(item.recipe_photo));}}
               recipe={item}
               />
             }
