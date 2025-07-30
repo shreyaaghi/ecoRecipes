@@ -24,14 +24,22 @@ const MealPlansScreen: React.FC = () => {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) return;
 
-            const { data } = await axios.get(`${api_url}/mealplans/user`, {
-                headers: { "x-access-token": token }
+            const response = await axios.get(`${api_url}/mealplans/user`, {
+                headers: { "x-access-token": token },
+                validateStatus: (status) => status < 500 
             });
 
-            setMealPlans(data.data || []);
-
+            if (response.status === 200) {
+                setMealPlans(response.data?.data || []);
+            } else if (response.status === 404) {
+                setMealPlans([]);
+            }
         } catch (error) {
-            console.error("Error fetching meal plans:", error);
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                setMealPlans([]);
+            } else {
+                console.error("Error fetching meal plans:", error);
+            }
             setMealPlans([]);
         }
     };

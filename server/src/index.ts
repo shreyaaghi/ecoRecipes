@@ -1,7 +1,6 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-// import formidable from 'express-formidable';
 
 import express, { Express, Request, Response } from "express";
 import authRouter from "./routes/auth"
@@ -16,7 +15,6 @@ import aiRouter from "./routes/ai"
 
 const app:Express = express();
 const port:number = parseInt(process.env.PORT) || 8000;
-// app.use(formidable());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cors({
