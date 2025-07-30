@@ -89,16 +89,10 @@ const getUserMealPlans = async (user_id: string) => {
     };
   }
 
-  if (!data || data.length == 0) {
-    return {
-      status: 404,
-      error: 'no meal plans found under user',
-    };
-  }
   return {
     status: 200,
-    data: data
-  }
+    data: data || []
+  };
 };
 
 const getMealPlanWithRecipes = async (id: number) => {
