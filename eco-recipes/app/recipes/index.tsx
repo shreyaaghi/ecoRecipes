@@ -7,9 +7,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchModal } from './components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
-const items_per_page = 10; // Number of recipes to show per page
+const items_per_page = 10; 
 
 const RecipesScreen: React.FC = () => {
   const [allRecipes, setAllRecipes] = useState<Record<string, unknown>[]>([]);
@@ -23,6 +24,14 @@ const RecipesScreen: React.FC = () => {
 
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
+  }, []);
+
+  useEffect(() => {
+    if (!api_url) {
+      setIsLoading(false);
+      return;
+    }
+    fetchAllRecipes();
   }, []);
 
   const fetchAllRecipes = async () => {
@@ -67,7 +76,7 @@ const RecipesScreen: React.FC = () => {
 
     setIsDiscovering(true);
     try {
-      const response = await axios.post(`${api_url}/ai/generate-and-save`);
+      const response = await axios.post(`${api_url}/ai/create`);
 
       if (response.data && response.data.recipe) {
         Alert.alert(
@@ -131,19 +140,27 @@ const RecipesScreen: React.FC = () => {
             <Text style={styles.title}>Recipes</Text>
             <Text style={styles.subtitle}>Select from a sustainable catalog of recipes for your meals.</Text>
           </View>
-          <TouchableOpacity
-            style={styles.searchImageContainer}
-            onPress={() => setModalVisible(true)}
-          >
-            <FontAwesome
-              disabled={true}
-              name="search"
-              size={50}
-              color="white"
-            />
-          </TouchableOpacity>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity 
+              style={[styles.actionButton, isDiscovering && styles.actionButtonDisabled]} 
+              onPress={discoverRecipeFromWeb}
+              disabled={isDiscovering}
+            >
+              {isDiscovering ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <MaterialIcons name="explore" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.actionButton} 
+              onPress={() => setModalVisible(true)}
+            >
+              <FontAwesome name="search" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
-
+        
         <View style={styles.listContainer}>
           <FlatList
             data={currentRecipes}
@@ -155,39 +172,39 @@ const RecipesScreen: React.FC = () => {
               <Text style={styles.noRecipesText}>No recipes found</Text>
             }
           />
-
+          
           {/* Pagination Controls */}
           {allRecipes.length > 0 && (
             <View style={styles.paginationContainer}>
-              <TouchableOpacity
+              <TouchableOpacity 
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>««</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
+              
+              <TouchableOpacity 
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>‹</Text>
               </TouchableOpacity>
-
+              
               <Text style={styles.pageInfo}>
                 Showing {startIndex + 1}-{endIndex} of {allRecipes.length}
               </Text>
-
-              <TouchableOpacity
+              
+              <TouchableOpacity 
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
                 <Text style={styles.paginationText}>›</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
+              
+              <TouchableOpacity 
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(totalPages)}
                 disabled={currentPage === totalPages}
@@ -197,7 +214,7 @@ const RecipesScreen: React.FC = () => {
             </View>
           )}
         </View>
-
+        
         <SearchModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
       </View>
     </SafeAreaView>
@@ -238,8 +255,21 @@ const styles = StyleSheet.create({
     color: 'white',
     opacity: 0.8,
   },
-  searchImageContainer: {
-    padding: 8,
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    padding: 12,
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  actionButtonDisabled: {
+    opacity: 0.6,
   },
   listContainer: {
     flex: 1,
