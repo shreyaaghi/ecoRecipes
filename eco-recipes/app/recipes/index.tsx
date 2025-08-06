@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
 import axios from 'axios';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -10,7 +10,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
-const items_per_page = 10; 
+const items_per_page = 10;
 
 const RecipesScreen: React.FC = () => {
   const [allRecipes, setAllRecipes] = useState<Record<string, unknown>[]>([]);
@@ -133,34 +133,43 @@ const RecipesScreen: React.FC = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4BA9FF" }}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.back} onPress={handleBack}>
-            <AntDesign name="left" size={24} color="white" />
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
-          <View style={styles.textHeader}>
-            <Text style={styles.title}>Recipes</Text>
-            <Text style={styles.subtitle}>Select from a sustainable catalog of recipes for your meals.</Text>
-          </View>
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={[styles.actionButton, isDiscovering && styles.actionButtonDisabled]} 
-              onPress={discoverRecipeFromWeb}
-              disabled={isDiscovering}
-            >
-              {isDiscovering ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <MaterialIcons name="explore" size={24} color="white" />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.actionButton} 
-              onPress={() => setModalVisible(true)}
-            >
-              <FontAwesome name="search" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
         </View>
-        
+        <View style={styles.titleSection}>
+          <Text style={styles.title}>Recipes</Text>
+          <Text style={styles.subtitle}>Choose from existing recipes, or discover your own.</Text>
+        </View>
+
+        <View style={styles.actionButtonsRow}>
+          <TouchableOpacity
+            style={[styles.discoverButton, isDiscovering && styles.discoverButtonDisabled]}
+            onPress={discoverRecipeFromWeb}
+            disabled={isDiscovering}
+          >
+            {isDiscovering ? (
+              <>
+                <ActivityIndicator size="small" color="white" />
+                <Text style={styles.buttonText}>Finding...</Text>
+              </>
+            ) : (
+              <>
+                <MaterialIcons name="explore" size={20} color="white" />
+                <Text style={styles.buttonText}>Discover Recipe</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <FontAwesome name="search" size={20} color="white" />
+            <Text style={styles.buttonText}>Search Recipes</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.listContainer}>
           <FlatList
             data={currentRecipes}
@@ -171,40 +180,40 @@ const RecipesScreen: React.FC = () => {
             ListEmptyComponent={
               <Text style={styles.noRecipesText}>No recipes found</Text>
             }
+            showsVerticalScrollIndicator={false}
           />
-          
-          {/* Pagination Controls */}
+
           {allRecipes.length > 0 && (
             <View style={styles.paginationContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>««</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>‹</Text>
               </TouchableOpacity>
-              
+
               <Text style={styles.pageInfo}>
                 Showing {startIndex + 1}-{endIndex} of {allRecipes.length}
               </Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
                 <Text style={styles.paginationText}>›</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(totalPages)}
                 disabled={currentPage === totalPages}
@@ -214,12 +223,14 @@ const RecipesScreen: React.FC = () => {
             </View>
           )}
         </View>
-        
+
         <SearchModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
       </View>
     </SafeAreaView>
   );
 };
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -234,46 +245,77 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    paddingTop: 50,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
-  back: {
-    marginRight: 16,
+  backButton: {
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
-  textHeader: {
-    flex: 1,
+  backButtonText: {
+    color: '#4BA9FF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  titleSection: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 4,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: 'white',
-    opacity: 0.8,
+    textAlign: 'center',
   },
-  actionButtons: {
+
+  actionButtonsRow: {
     flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
     gap: 12,
   },
-  actionButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 12,
-    padding: 12,
-    minWidth: 48,
-    minHeight: 48,
-    justifyContent: 'center',
+  discoverButton: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#41BD4B',
+    borderRadius: 15,
+    paddingVertical: 15,
+    gap: 8,
   },
-  actionButtonDisabled: {
+  searchButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 15,
+    paddingVertical: 15,
+    gap: 8,
+  },
+  discoverButtonDisabled: {
     opacity: 0.6,
   },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
   listContainer: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 20,
   },
   noRecipesText: {
     color: 'white',
@@ -286,27 +328,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
-    paddingVertical: 8,
+    paddingVertical: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    marginBottom: 20,
   },
   paginationButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
+    borderRadius: 8,
     marginHorizontal: 4,
+    minWidth: 36,
+    alignItems: 'center',
   },
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   pageInfo: {
     color: 'white',
-    marginHorizontal: 12,
-    minWidth: 150,
+    marginHorizontal: 16,
+    fontSize: 14,
+    fontWeight: '500',
     textAlign: 'center',
+    minWidth: 120,
   },
   paginationText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
