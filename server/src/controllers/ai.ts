@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { createIngredient, getIngredientByName } from "./ingredients";
+import { createPair } from "./recipeIngredients";
 
-const sendAiRequest = async (message:string) => {
+const sendAiRequest = async (message: string) => {
     if (message.length == 0) {
         return {
             status: 400,
@@ -47,7 +49,7 @@ const analyzeSustainability = async (recipeData: {
 }): Promise<{ status: number; data?: SustainabilityAnalysis; error?: string }> => {
     try {
         const anthropic = new Anthropic();
-        
+
         const systemPrompt = `You are a sustainability expert analyzing recipes for their environmental impact. Analyze the provided recipe and return ONLY a valid JSON object with the following structure:
         {
             "sustainabilityScore": number (1-100),
@@ -104,7 +106,10 @@ const analyzeSustainability = async (recipeData: {
         }
 
         if (!responseText) {
-            throw new Error('No text response from Claude');
+            return {
+                status: 400,
+                error: 'No text response from Claude'
+            }
         }
 
         // parse
@@ -113,16 +118,22 @@ const analyzeSustainability = async (recipeData: {
             // clean extra text
             const jsonStart = responseText.indexOf('{');
             const jsonEnd = responseText.lastIndexOf('}') + 1;
-            
+
             if (jsonStart === -1 || jsonEnd === 0) {
-                throw new Error('No JSON found in response');
+                return {
+                    status: 400,
+                    error: 'No json found in response'
+                }
             }
-            
+
             const jsonString = responseText.slice(jsonStart, jsonEnd);
             analysisData = JSON.parse(jsonString);
         } catch (parseError) {
             console.error('Failed to parse Claude response as JSON:', responseText);
-            throw new Error('Invalid JSON response from AI');
+            return {
+                status: 400,
+                error: 'invalid json response from AI'
+            }
         }
 
         // validate res structure
@@ -132,7 +143,10 @@ const analyzeSustainability = async (recipeData: {
             !Array.isArray(analysisData.improvementSuggestions) ||
             typeof analysisData.reasoning !== 'string'
         ) {
-            throw new Error('Invalid response structure from AI');
+            return {
+                status: 400,
+                error: 'invalid AI response structure'
+            }
         }
 
         // check score
@@ -152,5 +166,189 @@ const analyzeSustainability = async (recipeData: {
     }
 };
 
+const processRecipeIngredients = async (recipeId: number, ingredients: Array<{name: string, amount: string, comments: string}>) => {
+    const errors = [];
+    const successfulPairs = [];
+    
+    for (const ingredient of ingredients) {
+        try {
+            let ingredientResult = await getIngredientByName(ingredient.name);
+            let ingredientId;
+            
+            if (ingredientResult.status === 404) {
+                // create new ingredient otherwise
+                const createResult = await createIngredient(ingredient.name);
+                if (createResult.status === 200) {
+                    ingredientId = createResult.data[0].id;
+                } else {
+                    errors.push(`failed to create ingredient "${ingredient.name}": ${createResult.error}`);
+                    continue;
+                }
+            } else if (ingredientResult.status === 200) {
+                ingredientId = ingredientResult.data[0].id;
+            } else {
+                errors.push(`couldn't check ingredient "${ingredient.name}": ${ingredientResult.error}`);
+                continue;
+            }
+            
+            // create pair
+            const pairResult = await createPair(recipeId, ingredientId, ingredient.amount, ingredient.comments);
+            if (pairResult.status === 200) {
+                successfulPairs.push(ingredient);
+            } else {
+                errors.push(`failed to link ingredient "${ingredient.name}" to recipe: ${pairResult.error}`);
+            }
+            
+        } catch (error) {
+            errors.push(`couldn't process ingredient "${ingredient.name}": ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+    
+    return { successfulPairs, errors };
+};
 
-export { sendAiRequest, analyzeSustainability };
+const findRecipes = async (): Promise<any> => {
+    try {
+        const anthropic = new Anthropic();
+
+        const systemPrompt = `You are a Sustainable Recipe Discovery Assistant that finds eco-friendly recipes from the internet and formats them to match a specific database structure. You do not make up anything - everything should be quoted from the source,including ingredients, description, steps, or anything of that matter. All the information you pull from the internet is REAL. Make note of the url where the recipe came from. Your goal is to locate recipes that prioritize sustainability and format them for seamless integration into an existing recipe management system. ### Core Responsibilities: 1. **Find Sustainable Recipes**: Search for recipes that demonstrate sustainability through:
+            - Seasonal ingredients and local sourcing potential
+            - Plant-based or reduced-meat content
+            - Minimal food waste approaches
+            - Environmentally conscious cooking methods
+            - Organic or naturally-grown ingredients when possible
+
+        while these are your core responsiblities, ensure some balance with the recipe actually being appetizing. like it should be something that someone would actually eat, not just vegetable stock or something.
+        2. **Format for Database**: Structure the recipe data in this exact JSON format:
+        json {
+            "title": "Recipe title (string, concise and appealing)",
+            "author": null,
+            "description": "Brief description highlighting what makes this recipe special and sustainable (string, 150-300 chars)",
+            "steps": "Complete cooking instructions as a single formatted string with numbered steps separated by newlines",
+            "category": "breakfast|lunch|dinner|snack|dessert|appetizer",
+            "sustainability_info": "",
+            "ingredients": [
+                {
+                    "name": "organic quinoa",
+                    "amount": "2 cups",
+                    "comments": ""
+                },
+                {
+                    "name": "seasonal zucchini", 
+                    "amount": "1 large",
+                    "comments": "diced"
+                }
+            ],
+            "recipe_photo": null,
+            "photo_type": "",
+            "user_generated": false,
+            "generateSustainabilityAI": true
+        }
+        
+        IMPORTANT: Parse ingredients into objects with name, amount, and comments fields. Extract the ingredient name cleanly (remove amounts and preparation notes).`;
+
+        const msg = await anthropic.messages.create({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 2000,
+            temperature: 0.7,
+            system: systemPrompt,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: "Find a sustainable recipe."
+                        }
+                    ]
+                },
+            ],
+        });
+
+        let responseText = '';
+        if (msg.content && msg.content.length > 0) {
+            const textBlock = msg.content.find(block => block.type === 'text');
+            if (textBlock && 'text' in textBlock) {
+                responseText = textBlock.text;
+            }
+        }
+
+        if (!responseText) {
+            return {
+                status: 400,
+                error: 'No text response from Claude'
+            }
+        }
+
+        try {
+            const jsonStart = responseText.indexOf('{');
+            const jsonEnd = responseText.lastIndexOf('}') + 1;
+
+            if (jsonStart === -1 || jsonEnd === 0) {
+                return {
+                    status: 400,
+                    error: 'no json found in response'
+                }
+            }
+
+            const jsonString = responseText.slice(jsonStart, jsonEnd);
+            const recipeData = JSON.parse(jsonString);
+
+            // check that all the fields are there
+            if (!recipeData.title || !recipeData.description || !recipeData.steps || 
+                !recipeData.category || !Array.isArray(recipeData.ingredients)) {
+                    return {
+                        status: 400,
+                        error: 'missing required recipe fields'
+                    }
+            }
+
+            for (const ingredient of recipeData.ingredients) {
+                if (!ingredient.name || !ingredient.amount) {
+                    return {
+                        status: 400,
+                        error: 'invalid ingredient structure - name and amount needed'
+                    }
+                }
+            }
+
+            const validCategories = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts', 'Drinks'];
+            if (!validCategories.includes(recipeData.category.toLowerCase())) {
+                recipeData.category = 'Dinner'; // default
+            }
+
+            const formattedData = {
+                title: recipeData.title,
+                author: 'a6cfb7c3-5651-41db-a988-e26b83216811',
+                description: recipeData.description,
+                steps: recipeData.steps,
+                category: recipeData.category.toLowerCase(),
+                sustainability_info: recipeData.sustainability_info || '',
+                recipe_photo: "",
+                photo_type: '',
+                user_generated: false,
+                generateSustainabilityAI: true,
+                ingredients: recipeData.ingredients
+            };
+
+            return {
+                status: 200,
+                data: formattedData
+            };
+
+        } catch (parseError) {
+            return {
+                status: 400,
+                error: 'invalid JSON response from AI'
+            };
+        }
+
+    } catch (error) {
+        return {
+            status: 500,
+            error: error instanceof Error ? error.message : 'Unknown error in AI analysis'
+        };
+    }
+};
+
+export { sendAiRequest, analyzeSustainability, processRecipeIngredients,findRecipes};

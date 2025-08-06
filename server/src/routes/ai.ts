@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
-import { sendAiRequest } from "../controllers";
+import { sendAiRequest, findRecipes, processRecipeIngredients } from "../controllers";
+import { createRecipe } from "../controllers";
 import { supabase } from "../util";
 
 // handles requests for authentication
@@ -14,7 +15,30 @@ const aiRouter = () => {
         }
         const { message }: { message: string } = req.body;
         res.send(await sendAiRequest(message));
-    })
+    });
+    router.get("/find", async (req: Request, res:Response) => {
+        res.send(await findRecipes());
+    });
+    
+    router.post("/create", async (req: Request, res: Response) => {
+        const aiRecipeResult = await findRecipes();
+
+        const recipeData = aiRecipeResult.data;
+
+        const createResult = await createRecipe(recipeData.title, recipeData.author, recipeData.description, recipeData.steps, recipeData.category, recipeData.sustainability_info, recipeData.recipe_photo, recipeData.mime_type, recipeData.user_generated, recipeData.generateSustainabilityAI, recipeData.ingredients);
+
+        const recipeId = createResult.data[0].id;
+            
+        const ingredientResult = await processRecipeIngredients(recipeId, recipeData.ingredients);
+
+        return res.status(200).json({
+            message: "AI recipe created successfully",
+            recipe: createResult.data[0],
+            ingredients: ingredientResult
+        });
+
+    });
+    
     return router;
 }
 

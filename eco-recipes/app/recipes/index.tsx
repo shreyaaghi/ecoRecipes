@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
 import axios from 'axios';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -8,7 +8,6 @@ import { SearchModal } from './components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
-import { fixImageUrl } from '@/utils/imageUtils';
 
 const items_per_page = 10; // Number of recipes to show per page
 
@@ -16,6 +15,7 @@ const RecipesScreen: React.FC = () => {
   const [allRecipes, setAllRecipes] = useState<Record<string, unknown>[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDiscovering, setIsDiscovering] = useState(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const api_url = process.env.EXPO_PUBLIC_API_URL || "";
   const navigation = useNavigation();
@@ -25,46 +25,77 @@ const RecipesScreen: React.FC = () => {
     navigation.setOptions({ headerShown: false });
   }, []);
 
-  useEffect(() => {
-    const fetchAllRecipes = async () => {
-      setIsLoading(true);
-      let allRecipes: any[] = [];
-      let page = 1;
-      const pageSize = 100; 
-      let hasMore = true;
+  const fetchAllRecipes = async () => {
+    setIsLoading(true);
+    let allRecipes: any[] = [];
+    let page = 1;
+    const pageSize = 100;
+    let hasMore = true;
+
+    try {
+      while (hasMore) {
+        const { data } = await axios.get(
+          `${api_url}/recipes/recipes/?pageSize=${pageSize}&pageNumber=${page}`
+        );
+
+        if (!data.data || data.data.length === 0) {
+          hasMore = false;
+        } else {
+          allRecipes = [...allRecipes, ...data.data];
+          page++;
+        }
+      }
+      setAllRecipes(allRecipes);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
 
       try {
-        while (hasMore) {
-          const { data } = await axios.get(
-            `${api_url}/recipes/recipes/?pageSize=${pageSize}&pageNumber=${page}`
-          );
-          
-          if (!data.data || data.data.length === 0) {
-            hasMore = false;
-          } else {
-            allRecipes = [...allRecipes, ...data.data];
-            page++;
-          }
-        }
-        setAllRecipes(allRecipes);
-      } catch (error) {
-        console.error('Error fetching recipes:', error);
-
-        try {
-          const { data } = await axios.get(
-            `${api_url}/recipes/recipes/?pageSize=100&pageNumber=1`
-          );
-          setAllRecipes(data.data);
-        } catch (fallbackError) {
-          console.error('Fallback fetch failed:', fallbackError);
-        }
-      } finally {
-        setIsLoading(false);
+        const { data } = await axios.get(
+          `${api_url}/recipes/recipes/?pageSize=100&pageNumber=1`
+        );
+        setAllRecipes(data.data);
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError);
       }
-    };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchAllRecipes();
-  }, []);
+  const discoverRecipeFromWeb = async () => {
+    if (isDiscovering) return;
+
+    setIsDiscovering(true);
+    try {
+      const response = await axios.post(`${api_url}/ai/generate-and-save`);
+
+      if (response.data && response.data.recipe) {
+        Alert.alert(
+          "Recipe Discovered! 🎉",
+          `Found and saved: "${response.data.recipe.title}"`,
+          [
+            {
+              text: "View Recipe",
+              onPress: () => router.navigate(`/recipes/${response.data.recipe.id}`)
+            },
+            {
+              text: "Stay Here",
+              style: "cancel",
+              onPress: () => {
+                fetchAllRecipes();
+              }
+            }
+          ]
+        );
+      } else {
+        fetchAllRecipes();
+      }
+    } catch (error) {
+      console.error('Error discovering recipe:', error);
+    } finally {
+      setIsDiscovering(false);
+    }
+  };
 
   const totalPages = Math.ceil(allRecipes.length / items_per_page);
   const startIndex = (currentPage - 1) * items_per_page;
@@ -100,8 +131,8 @@ const RecipesScreen: React.FC = () => {
             <Text style={styles.title}>Recipes</Text>
             <Text style={styles.subtitle}>Select from a sustainable catalog of recipes for your meals.</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.searchImageContainer} 
+          <TouchableOpacity
+            style={styles.searchImageContainer}
             onPress={() => setModalVisible(true)}
           >
             <FontAwesome
@@ -112,51 +143,51 @@ const RecipesScreen: React.FC = () => {
             />
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.listContainer}>
           <FlatList
             data={currentRecipes}
             renderItem={({ item }: any) => (
-              <RecipeButton id={item.id} name={item.title} image={fixImageUrl(item.recipe_photo)} />
+              <RecipeButton id={item.id} name={item.title} image={item.recipe_photo} />
             )}
             keyExtractor={(item: any) => item.id}
             ListEmptyComponent={
               <Text style={styles.noRecipesText}>No recipes found</Text>
             }
           />
-          
+
           {/* Pagination Controls */}
           {allRecipes.length > 0 && (
             <View style={styles.paginationContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>««</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
                 onPress={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
               >
                 <Text style={styles.paginationText}>‹</Text>
               </TouchableOpacity>
-              
+
               <Text style={styles.pageInfo}>
                 Showing {startIndex + 1}-{endIndex} of {allRecipes.length}
               </Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
                 <Text style={styles.paginationText}>›</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
                 onPress={() => goToPage(totalPages)}
                 disabled={currentPage === totalPages}
@@ -166,7 +197,7 @@ const RecipesScreen: React.FC = () => {
             </View>
           )}
         </View>
-        
+
         <SearchModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
       </View>
     </SafeAreaView>

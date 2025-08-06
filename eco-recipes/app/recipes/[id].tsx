@@ -3,7 +3,6 @@ import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 import { useNavigation, useRouter } from 'expo-router';
-import { fixImageUrl } from '@/utils/imageUtils';
 
 // Recipe interface, type checks recipe data
 interface Recipe {
@@ -176,7 +175,7 @@ const Recipe = () => {
             <Image
               source={{
                 uri: recipe.recipe_photo 
-                  ? fixImageUrl(recipe.recipe_photo) || ''  
+                  ? recipe.recipe_photo || ''  
                   : `https://fakeimg.pl/${Math.floor(Dimensions.get('window').width)}x${Math.floor(Dimensions.get('window').height * 0.25)}?text=${encodeURIComponent(recipe.title)}`
               }}
               style={styles.image}
