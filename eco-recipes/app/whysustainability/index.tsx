@@ -10,7 +10,7 @@ const { width } = Dimensions.get('window');
 const sustainabilityFacts = [
     "Enough food is produced to feed the world’s 7 billion people, yet 309 million people in 72 countries face acute food insecurity",
     "28% percent of the world’s arable land produces food that is wasted",
-    "Around one fifth of food produced for human consumption is either lost or wasted (~1.3 billion tons, valued at US$1 trillion",
+    "Around one fifth of food produced for human consumption is either lost or wasted (~1.3 billion tons, valued at US$1 trillion)",
     "Food loss and waste account for about 4.4 gigatonnes of greenhouse gas emissions annually"
 ];
 
@@ -18,15 +18,11 @@ const WhySustainabilityScreen = () => {
     const router = useRouter();
     const navigation = useNavigation();
     const [expandedCard, setExpandedCard] = useState<string | null>(null);
-    const [currentFact, setCurrentFact] = useState(0);
+        const [currentFact, setCurrentFact] = useState(0);
 
     useEffect(() => {
         navigation.setOptions({ headerShown: false });
-        // Rotate facts every 5 seconds
-        const interval = setInterval(() => {
-            setCurrentFact((prev) => (prev + 1) % sustainabilityFacts.length);
-        }, 6000);
-        return () => clearInterval(interval);
+        setCurrentFact(Math.floor(Math.random() * sustainabilityFacts.length));
     }, []);
 
     const toggleCard = (cardId: string) => {
