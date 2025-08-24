@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { sendAiRequest, findRecipes, processRecipeIngredients } from "../controllers";
+import { sendAiRequest, findRecipes, processRecipeIngredients, findRecipesWithIngredients } from "../controllers";
 import { createRecipe } from "../controllers";
 import { supabase } from "../util";
 
@@ -24,6 +24,7 @@ const aiRouter = () => {
         const aiRecipeResult = await findRecipes();
 
         const recipeData = aiRecipeResult.data;
+        
 
         const createResult = await createRecipe(recipeData.title, recipeData.author, recipeData.description, recipeData.steps, recipeData.category, recipeData.sustainability_info, recipeData.recipe_photo, recipeData.mime_type, recipeData.user_generated, recipeData.generateSustainabilityAI, recipeData.ingredients);
 
@@ -35,6 +36,27 @@ const aiRouter = () => {
             message: "AI recipe created successfully",
             recipe: createResult.data[0],
             ingredients: ingredientResult
+        });
+
+    });
+
+    router.post("/create-with-ingredients", async (req: Request, res: Response) => {
+        const { ingredients }: { ingredients: string } = req.body;
+        const aiRecipeResult = await findRecipesWithIngredients(ingredients);
+
+        const recipeData = aiRecipeResult.data;
+
+        const createResult = await createRecipe(recipeData.title, recipeData.author, recipeData.description, recipeData.steps, recipeData.category, recipeData.sustainability_info, recipeData.recipe_photo, recipeData.mime_type, recipeData.user_generated, recipeData.generateSustainabilityAI, recipeData.ingredients);
+
+        const recipeId = createResult.data[0].id;
+            
+        const ingredientResult = await processRecipeIngredients(recipeId, recipeData.ingredients);
+
+        return res.status(200).json({
+            message: "AI recipe with ingredients created successfully",
+            recipe: createResult.data[0],
+            ingredients: ingredientResult,
+            url: recipeData.url
         });
 
     });
