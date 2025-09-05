@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, Alert, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, Alert, Dimensions, TextInput } from 'react-native';
 import { RecipeButton } from '@/components/RecipeButton';
 import axios from 'axios';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -17,6 +17,8 @@ const RecipesScreen: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isDiscovering, setIsDiscovering] = useState(false);
+  const [isFindingWithIngredients, setIsFindingWithIngredients] = useState(false);
+  const [ingredientsInput, setIngredientsInput] = useState("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const api_url = process.env.EXPO_PUBLIC_API_URL || "";
   const navigation = useNavigation();
@@ -106,6 +108,48 @@ const RecipesScreen: React.FC = () => {
     }
   };
 
+  const findRecipeWithIngredients = async () => {
+    if (isFindingWithIngredients) return;
+
+    if (!ingredientsInput.trim()) {
+      Alert.alert("Please enter ingredients first!");
+      return;
+    }
+
+    setIsFindingWithIngredients(true);
+    try {
+      const response = await axios.post(`${api_url}/ai/create-with-ingredients`, {
+        ingredients: ingredientsInput,
+      });
+
+      if (response.data && response.data.recipe) {
+        Alert.alert(
+          "Recipe Found! 🎉",
+          `Created from your ingredients: "${response.data.recipe.title}"`,
+          [
+            {
+              text: "View Recipe",
+              onPress: () => router.navigate(`/recipes/${response.data.recipe.id}`)
+            },
+            {
+              text: "Stay Here",
+              style: "cancel",
+              onPress: () => {
+                fetchAllRecipes();
+              }
+            }
+          ]
+        );
+      } else {
+        fetchAllRecipes();
+      }
+    } catch (error) {
+      console.error('Error finding recipe with ingredients:', error);
+    } finally {
+      setIsFindingWithIngredients(false);
+    }
+  };
+
   const totalPages = Math.ceil(allRecipes.length / items_per_page);
   const startIndex = (currentPage - 1) * items_per_page;
   const endIndex = Math.min(startIndex + items_per_page, allRecipes.length);
@@ -167,6 +211,36 @@ const RecipesScreen: React.FC = () => {
           >
             <FontAwesome name="search" size={20} color="white" />
             <Text style={styles.buttonText}>Search Recipes</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.ingredientsContainer}>
+          <Text style={styles.ingredientsLabel}>Enter ingredients:</Text>
+          <View style={styles.ingredientsInputWrapper}>
+            <TextInput
+              style={styles.ingredientsInput}
+              placeholder="e.g. tomato, garlic, basil"
+              placeholderTextColor="gray"
+              value={ingredientsInput}
+              onChangeText={setIngredientsInput}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[styles.ingredientsButton, isFindingWithIngredients && styles.discoverButtonDisabled]}
+            onPress={findRecipeWithIngredients}
+            disabled={isFindingWithIngredients}
+          >
+            {isFindingWithIngredients ? (
+              <>
+                <ActivityIndicator size="small" color="white" />
+                <Text style={styles.buttonText}>Finding...</Text>
+              </>
+            ) : (
+              <>
+                <AntDesign name="pluscircleo" size={20} color="white" />
+                <Text style={styles.buttonText}>Find w/ Ingredients</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -357,6 +431,37 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  ingredientsContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  ingredientsLabel: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 8,
+  },
+  ingredientsInputWrapper: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+  },
+  ingredientsInput: {
+    fontSize: 16,
+    color: "#333",
+  },
+  ingredientsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#41BD4B",
+    borderRadius: 15,
+    paddingVertical: 15,
+    gap: 8,
   },
 });
 
