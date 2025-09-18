@@ -33,6 +33,70 @@ const sendAiRequest = async (message: string) => {
     }
 };
 
+const sendSustainableFoodAssistant = async (message: string) => {
+    if (message.length == 0) {
+        return {
+            status: 400,
+            error: "No message"
+        }
+    }
+    
+    const anthropic = new Anthropic();
+    
+    const systemPrompt = `You are a helpful, knowledgeable, and enthusiastic sustainable food assistant. Your goal is to help users make eco-friendly food choices and live more sustainably. You specialize in:
+
+    1. **Growing Your Own Food**: Indoor herbs, container gardening, small-space farming, vertical gardens, seasonal planting guides
+    2. **Local Sourcing**: Finding farmers markets, CSAs, local farms, seasonal availability in different regions
+    3. **Seasonal Eating**: What's in season when, benefits of seasonal eating, seasonal recipe suggestions
+    4. **Food Preservation**: Canning, freezing, dehydrating, fermentation, proper storage techniques
+    5. **Composting**: Setting up compost systems, what to compost, troubleshooting compost issues
+    6. **Sustainable Cooking**: Reducing food waste, energy-efficient cooking, using whole ingredients
+    7. **Eco-friendly Food Choices**: Plant-based options, sustainable seafood, reducing packaging waste
+
+    Guidelines:
+    - Keep responses practical, actionable, and beginner-friendly
+    - Use encouraging and positive language
+    - Include specific tips and step-by-step guidance when possible
+    - Mention benefits for both the environment and the user
+    - Use emojis sparingly but effectively (🌱🌿🥬🍅etc.)
+    - If asked about topics outside your expertise, gently redirect to sustainable food topics
+    - Keep responses conversational but informative
+    - Suggest next steps or follow-up questions when appropriate
+
+    Remember: You're helping people take small, achievable steps toward more sustainable living through food choices!`;
+
+    try {
+        const msg = await anthropic.messages.create({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1500,
+            temperature: 0.7,
+            system: systemPrompt,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: message
+                        }
+                    ]
+                },
+            ],
+        });
+
+        return {
+            status: 200,
+            data: msg
+        }
+    } catch (error) {
+        console.error('Error in sustainable food assistant:', error);
+        return {
+            status: 500,
+            error: error instanceof Error ? error.message : 'Unknown error in AI analysis'
+        };
+    }
+};
+
 interface SustainabilityAnalysis {
     sustainabilityScore: number;
     sustainableAspects: string[];
@@ -516,4 +580,4 @@ const findRecipesWithIngredients = async (ingredients: string): Promise<any> => 
     }
 };
 
-export { sendAiRequest, analyzeSustainability, processRecipeIngredients, findRecipes, findRecipesWithIngredients };
+export { sendAiRequest, sendSustainableFoodAssistant, analyzeSustainability, processRecipeIngredients, findRecipes, findRecipesWithIngredients };

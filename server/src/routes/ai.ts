@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { sendAiRequest, findRecipes, processRecipeIngredients, findRecipesWithIngredients } from "../controllers";
+import { sendAiRequest, sendSustainableFoodAssistant, findRecipes, processRecipeIngredients, findRecipesWithIngredients } from "../controllers";
 import { createRecipe } from "../controllers";
 import { supabase } from "../util";
 
@@ -16,6 +16,18 @@ const aiRouter = () => {
         const { message }: { message: string } = req.body;
         res.send(await sendAiRequest(message));
     });
+
+    router.post("/sustainable-assistant", async (req: Request, res: Response) => {
+        const token: string | undefined = req.get("x-access-token");
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (!user) {
+            return res.status(401).send("not authenticated")
+        }
+        const { message }: { message: string } = req.body;
+        res.send(await sendSustainableFoodAssistant(message));
+    });
+
+
     router.get("/find", async (req: Request, res:Response) => {
         res.send(await findRecipes());
     });
