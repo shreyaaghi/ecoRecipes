@@ -28,11 +28,13 @@ Eco-Recipes is a mobile application designed to help users discover and create s
 - View and edit existing meal plans
 - Delete meal plans when no longer needed
 
-### 🌿 Tips & Tricks
-- Learn about sustainable cooking practices
-- Discover ways to reduce food waste
-- Find information on seasonal and local ingredients
-- Get tips for growing your own food
+### 🌿 EcoFood Assistant
+- AI-powered chat interface for sustainable food guidance
+- Get personalized advice on growing your own food
+- Discover local and seasonal ingredients
+- Learn about sustainable food practices and waste reduction
+- Interactive prompts for common questions
+- Real-time responses to your sustainability queries
 
 ### 🌎 Why Sustainability?
 - Educational content about sustainable food choices
