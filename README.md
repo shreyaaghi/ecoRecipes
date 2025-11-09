@@ -3,32 +3,32 @@
 ## Overview
 Eco-Recipes is a mobile application designed to help users discover and create sustainable recipes, plan meals, and learn about eco-friendly cooking practices. The app provides a platform for users to explore recipes, create meal plans, and gain knowledge about sustainable food choices.
 
-## 🎯 Target Audience
+## Target Audience
 - Home cooks interested in sustainable eating
 - Individuals looking to reduce their environmental impact through food choices
 - People who want to learn more about sustainable cooking practices
 - Users who want to organize their meal planning
 
-## ✨ Key Features
+## Key Features
 
-### 📱 User Authentication
+### User Authentication
 - Secure login and signup functionality
 - Persistent user sessions with JWT tokens
 - Protected routes for authenticated users
 
-### 📚 Recipe Management
+### Recipe Management
 - Browse a collection of sustainable recipes
 - View detailed recipe information
 - Search functionality to find specific recipes
 - Create and submit your own recipes
 
-### 🗓️ Meal Planning
+### Meal Planning
 - Create and manage multiple meal plans
 - Add recipes to your meal plans
 - View and edit existing meal plans
 - Delete meal plans when no longer needed
 
-### 🌿 EcoFood Assistant
+### EcoFood Assistant
 - AI-powered chat interface for sustainable food guidance
 - Get personalized advice on growing your own food
 - Discover local and seasonal ingredients
@@ -36,12 +36,12 @@ Eco-Recipes is a mobile application designed to help users discover and create s
 - Interactive prompts for common questions
 - Real-time responses to your sustainability queries
 
-### 🌎 Why Sustainability?
+### Why Sustainability?
 - Educational content about sustainable food choices
 - Information about the environmental impact of food production
 - Tips for making more eco-friendly food decisions
 
-## 🛠 Technical Implementation
+## Technical Implementation
 
 ### Frontend (Mobile App)
 - **Framework**: React Native with Expo for cross-platform development
@@ -61,19 +61,3 @@ Eco-Recipes is a mobile application designed to help users discover and create s
 - **API**: RESTful endpoints for all major features
 - **File Storage**: Supabase Storage for recipe images
 - **Validation**: Request validation middleware
-
-### Key Dependencies
-- **Frontend**:
-  - @react-navigation/native
-  - expo-router
-  - axios
-  - jwt-decode
-  - @react-native-async-storage/async-storage
-
-- **Backend**:
-  - express
-  - jsonwebtoken
-  - @supabase/supabase-js
-  - bcryptjs
-  - cors
-  - dotenv
