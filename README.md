@@ -1,5 +1,7 @@
 # Eco-Recipes: Sustainable Cooking App
 
+**Check out the demo video here:** https://www.youtube.com/watch?v=5gfhbjug9rI&feature=youtu.be
+
 ## Overview
 Eco-Recipes is a mobile application designed to help users discover and create sustainable recipes, plan meals, and learn about eco-friendly cooking practices. The app provides a platform for users to explore recipes, create meal plans, and gain knowledge about sustainable food choices.
 
